@@ -1,6 +1,9 @@
 const express = require("express");
 const User = require("../models/user.model");
-
+const bcrypt = require("bcrypt");
+const {
+  checkUserRegistrationFieldsValidity,
+} = require("../utils/util.controller");
 const UserController = {
   /**
    * gets all users from the database
@@ -19,19 +22,74 @@ const UserController = {
   /**
    * registers user to the database
    *
-   * @param {express.Request} req
+   * @param {express.Request} newUserData
    * @param {express.Response} res
    */
 
-  registerUser: (req, res) => {
-    const badgeID = req.body.badgeID;
-    const username = req.body.username;
-    const password = req.body.password;
-    const firstName = req.body.firstName;
-    const lastName = req.body.lastName;
-    const jobTitle = req.body.jobTitle;
-    const emailAddress = req.body.emailAddress;
-    const additionalInfo = req.body.additionalInfo;
+  registerUser: async (req, res) => {
+    let newUserData = req.body;
+    let hashedPassword = "";
+
+    const userFieldsError = checkUserRegistrationFieldsValidity(req);
+
+    try {
+      hashedPassword = await bcrypt.hash(newUserData.password, 10);
+    } catch {
+      return res.status(400).json({
+        error: "Error with hashing.",
+      });
+    }
+
+    if (userFieldsError) {
+      return res.status(400).json(userFieldsError);
+    }
+
+    let users;
+
+    // checks if username already exists in db
+    try {
+      users = await User.find({ username: newUserData.username });
+      if (users.length > 0) {
+        return res.status(400).json({
+          error: "User with username already exists.",
+        });
+      }
+    } catch (err) {
+      return res.status(400).json(err);
+    }
+
+    // checks if badgeID already exists in db
+    try {
+      users = await User.find({ badgeID: newUserData.badgeID });
+      if (users.length > 0) {
+        return res.status(400).json({
+          error: "User with badgeID already exists.",
+        });
+      }
+    } catch (err) {
+      return res.status(400).json(err);
+    }
+
+    // checks if email already exists in db
+    try {
+      users = await User.find({ emailAddress: newUserData.emailAddress });
+      if (users.length > 0) {
+        return res.status(400).json({
+          error: "User with email already exists.",
+        });
+      }
+    } catch (err) {
+      return res.status(400).json(err);
+    }
+
+    const badgeID = newUserData.badgeID;
+    const username = newUserData.username;
+    const password = hashedPassword;
+    const firstName = newUserData.firstName;
+    const lastName = newUserData.lastName;
+    const jobTitle = newUserData.jobTitle;
+    const emailAddress = newUserData.emailAddress;
+    const additionalInfo = newUserData.additionalInfo;
 
     const newUser = new User({
       badgeID,
@@ -68,26 +126,27 @@ const UserController = {
         user.emailAddress = req.body.emailAddress;
         user.additionalInfo = req.body.additionalInfo;
 
-        user.save()
+        user
+          .save()
           .then(() => res.json("User updated!"))
           .catch((err) => res.status(400).json("Error" + err));
       })
       .catch((err) => res.status(400).json("Error" + err));
   },
 
- /**
-  * gets a user from the database
-  * 
-  * @param {express.Request} req 
-  * @param {express.Response} res 
-  * @returns an individual user by ID
-  */
+  /**
+   * gets a user from the database
+   *
+   * @param {express.Request} req
+   * @param {express.Response} res
+   * @returns an individual user by ID
+   */
 
   getUser: (req, res) => {
     return User.findById(req.params.id)
-    .then((user) => res.json(user))
-    .catch((err) => res.status(400).json("Error" + err));
-  }
+      .then((user) => res.json(user))
+      .catch((err) => res.status(400).json("Error" + err));
+  },
 };
 
 module.exports = UserController;

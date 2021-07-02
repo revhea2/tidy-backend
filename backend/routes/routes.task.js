@@ -10,4 +10,5 @@ taskRoutes.get("/user/:id", (req, res) => TaskController.getTaskByUserId(req, re
 taskRoutes.get("/subtask/:id", (req, res) => TaskController.getSubtask(req, res));
 taskRoutes.get("/project/:id", (req, res) => TaskController.getDirectTaskByProjectId(req, res));
 taskRoutes.get("/project/all/:id", (req, res) => TaskController.getAllTaskByProjectId(req, res));
+
 module.exports = taskRoutes;
