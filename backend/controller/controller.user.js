@@ -4,6 +4,8 @@ const bcrypt = require("bcrypt");
 const {
   checkUserRegistrationFieldsValidity,
 } = require("../utils/util.controller");
+
+const { createAccessToken } = require("../auth/auth.js");
 const UserController = {
   /**
    * gets all users from the database
@@ -44,12 +46,12 @@ const UserController = {
       return res.status(400).json(userFieldsError);
     }
 
-    let users;
+    let user;
 
     // checks if username already exists in db
     try {
-      users = await User.find({ username: newUserData.username });
-      if (users.length > 0) {
+      user = await User.findOne({ username: newUserData.username });
+      if (user) {
         return res.status(400).json({
           error: "User with username already exists.",
         });
@@ -60,8 +62,8 @@ const UserController = {
 
     // checks if badgeID already exists in db
     try {
-      users = await User.find({ badgeID: newUserData.badgeID });
-      if (users.length > 0) {
+      user = await User.findOne({ badgeID: newUserData.badgeID });
+      if (user) {
         return res.status(400).json({
           error: "User with badgeID already exists.",
         });
@@ -72,8 +74,8 @@ const UserController = {
 
     // checks if email already exists in db
     try {
-      users = await User.find({ emailAddress: newUserData.emailAddress });
-      if (users.length > 0) {
+      user = await User.findOne({ emailAddress: newUserData.emailAddress });
+      if (user) {
         return res.status(400).json({
           error: "User with email already exists.",
         });
@@ -106,6 +108,51 @@ const UserController = {
       .save()
       .then(() => res.json("User added!"))
       .catch((err) => res.status(400).json("Error" + err));
+  },
+
+  /**
+   * authenticate user by email and password
+   * 
+   * @param {express.Request} req 
+   * @param {express.Response} res 
+   * @returns access token of the authenticated
+   */
+
+  loginUser: async (req, res) => {
+    let user;
+    try {
+      user = await User.findOne({
+        badgeID: req.body.badgeID,
+        username: req.body.username,
+      });
+    } catch (err) {
+      return res.status(400).json(err);
+    }
+
+    if (user == null) {
+      return res.status(400).json("No user exists with the given credentials!");
+    }
+
+    try {
+      const isPasswordMatched = await bcrypt.compare(
+        req.body.password,
+        user.password
+      );
+      if (!isPasswordMatched) {
+        return res.status(400).json("Password did not match!");
+      }
+
+      console.log("i was here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
+      return res.status(200).json({
+        accessToken: createAccessToken(user.toObject()),
+      });
+    } catch (err) {
+      return res.status(400).json(err);
+    }
+    
+
+    //
   },
 
   /**
