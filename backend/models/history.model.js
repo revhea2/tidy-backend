@@ -5,7 +5,8 @@ const historySchema = new Schema(
   {
     userList: [
       {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: "User"
       },
     ],
     remarks: {
@@ -16,7 +17,8 @@ const historySchema = new Schema(
       required: true
     },
     timeline: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: "Timeline"
     },
   },
   { timestaps: true }

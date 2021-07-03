@@ -12,8 +12,35 @@ const TaskController = {
 
   getAllTasks: (req, res) => {
     return Task.find()
-      .then((tasks) => res.send(tasks))
-      .catch((err) => res.status(400).json("Error" + err));
+      .populate("timeline")
+      .populate("taskHistory")
+      .populate({
+        path: "taskHistory",
+        populate: {
+          path: "userList",
+        },
+      })
+      .populate({
+        path: "taskHistory",
+        populate: {
+          path: "timeline",
+        },
+      })
+      .populate(task)
+      .populate("taskOwner", [
+        "badgeID",
+        "firstName",
+        "lastName",
+        "jobTitle",
+        "additionalInfo",
+        "emailAddress",
+      ])
+      .exec(function (err, results) {
+        if (err) {
+          res.status(400).json({ error: "Error in getting all histories." });
+        }
+        res.status(200).json(results);
+      });
   },
 
   /**
@@ -143,9 +170,9 @@ const TaskController = {
       return res.json([]);
     }
 
-    return Task.find({projectID: req.params.id, parentTaskID:null})
-    .then((tasks) => res.json(tasks))
-    .catch((err) => res.status(400).json("Error" + err));
+    return Task.find({ projectID: req.params.id, parentTaskID: null })
+      .then((tasks) => res.json(tasks))
+      .catch((err) => res.status(400).json("Error" + err));
   },
 };
 

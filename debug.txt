@@ -14,7 +14,7 @@ user = {
 timeline = {
     "startDate": "2012-04-23T18:25:43.511Z",
     "endDate": "2012-04-23T18:25:43.511Z",
-    "progress": 23,
+    "progress": 23
 
 }
 
@@ -22,7 +22,7 @@ history = {
     "userList": ["60dd1b97c5222821a82c9bb3"],
     "remarks": "There is a change on owner",
     "updateDate": "2012-04-23T18:25:43.511Z",
-    "timeline": "60dc884cffd9d744c0cad08a",
+    "timeline": "60dc884cffd9d744c0cad08a"
 }
 
 project = {
@@ -36,11 +36,11 @@ project = {
 task = {
     "projectID" : "60dd5c187ccef834b89f30f7",
     "taskName": "Documentation",
-    "task": ["60dd5e51b2e1ef0d509fa9c6", "60dd5e5cb2e1ef0d509fa9ca",],
-    "timeline": "60dc884cffd9d744c0cad08a",
-    "taskHistory": ["60dd5a32647aed3c389e6acb"],
-    "taskOwner": "60dd1b97c5222821a82c9bb3",
-    "weight": 22,
+    "task": [],
+    "timeline": "60e07dae3374690544de60f0",
+    "taskHistory": ["60e07eb63374690544de60ff"],
+    "taskOwner": "60e08276146d7e0f88633531",
+    "weight": 22
 }
 
 task2 = {

@@ -6,7 +6,7 @@ const _getProject = (id) => {
     .catch(() => null);
 };
 
-const _getAllHistory = () => {
+const _getAllProject = () => {
   return Project.find()
     .then((projects) => {
       return projects;
@@ -16,27 +16,31 @@ const _getAllHistory = () => {
     });
 };
 
-const _createHistory = (project) => {
-  const userList = project.userList;
-  const remarks = project.remarks;
-  const updateDate = Date(project.updateDate);
+const _createProject = (project) => {
+  const projectName = project.projectName;
+  const projectOwner = project.projectOwner;
+  const projectHistory = project.projectHistory;
   const timeline = project.timeline;
+  const task = project.task;
+  const projectDetails = project.projectDetails;
 
-  const newHistory = Project({
-    userList,
-    remarks,
-    updateDate,
+  const newProject = new Project({
+    projectName,
+    projectOwner,
+    projectHistory,
     timeline,
+    projectDetails,
+    task,
   });
 
-  return newHistory
-    .save()
-    .then(() => "History added!")
-    .catch((err) => "Error" + err);
+  return newProject
+  .save()
+  .then(() => "Project added!")
+  .catch((err) => "Error" + err);
 };
 
 module.exports = {
   _getProject,
-  _getAllHistory,
-  _createHistory,
+  _getAllProject,
+  _createProject,
 };

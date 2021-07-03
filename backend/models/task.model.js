@@ -17,20 +17,24 @@ const taskSchema = new Schema(
     },
     task: [
       {
-        type: String,
-      }
+        type: Schema.Types.ObjectId,
+        ref: "Task"
+      },
     ],
-    timeline: {
-      type: String,
+    timeline:       {
+      type: Schema.Types.ObjectId,
+      ref: "Timeline"
     },
     taskHistory: [
       {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: "History"
       },
     ],
     taskOwner: [
       {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: "User"
       },
     ],
     taskDetails: {

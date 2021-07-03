@@ -1,9 +1,6 @@
 const express = require("express");
-const {
-  _getHistory,
-  _getAllHistory,
-  _createHistory,
-} = require("../utils/util.history");
+const History = require("../models/history.model");
+const { _createHistory } = require("../utils/util.history");
 
 const HistoryController = {
   /**
@@ -14,11 +11,23 @@ const HistoryController = {
    * @returns all histories in the database
    */
 
-  getAllHistory: async (req, res) => {
-    const history = await _getAllHistory();
-    return history !== null
-      ? res.status(200).json(history)
-      : res.status(400).json("Error in fetching all histories!");
+  getAllHistory: (req, res) => {
+    return History.find()
+      .populate("timeline")
+      .populate("userList", [
+        "badgeID",
+        "firstName",
+        "lastName",
+        "jobTitle",
+        "additionalInfo",
+        "emailAddress",
+      ])
+      .exec(function (err, results) {
+        if (err) {
+          res.status(400).json({ error: "Error in getting all histories." });
+        }
+        res.status(200).json(results);
+      });
   },
 
   /**
@@ -46,10 +55,22 @@ const HistoryController = {
       return res.json("Invalid route!");
     }
 
-    let history = await _getHistory(req.params.id);
-    return history !== null
-      ? res.status(200).json(history)
-      : res.status(400).json("Error in getting a history!");
+    History.findById(req.params.id)
+      .populate("timeline")
+      .populate("userList", [
+        "badgeID",
+        "firstName",
+        "lastName",
+        "jobTitle",
+        "additionalInfo",
+        "emailAddress",
+      ])
+      .exec(function (err, results) {
+        if (err) {
+          res.status(400).json({ error: err });
+        }
+        res.status(200).json(results);
+      });
   },
 };
 

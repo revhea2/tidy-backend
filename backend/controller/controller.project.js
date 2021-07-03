@@ -3,8 +3,10 @@ const Project = require("../models/project.model");
 const {
   _getProject,
   _getAllProject,
-  _createHistory,
+  _createProject,
 } = require("../utils/util.project");
+const { _getProjectHistories } = require("../utils/util.history");
+const { decode } = require("../auth/auth.js");
 
 const ProjectController = {
   /**
@@ -15,11 +17,37 @@ const ProjectController = {
    * @returns all projects in the database
    */
 
-  getAllProjects: async (req, res) => {
-    const project = await _getAllProject();
-    return project !== null
-      ? res.status(200).json(project)
-      : res.status(400).json("Error in fetching all projects!");
+  getAllProjects: (req, res) => {
+    return Project.find()
+      .populate("timeline")
+      .populate("projectHistory")
+      .populate({
+        path: "projectHistory",
+        populate: {
+          path: "userList",
+        },
+      })
+      .populate({
+        path: "projectHistory",
+        populate: {
+          path: "timeline",
+        },
+      })
+      .populate("taskOwner", [
+        "badgeID",
+        "firstName",
+        "lastName",
+        "jobTitle",
+        "additionalInfo",
+        "emailAddress",
+      ])
+      .populate(task)
+      .exec(function (err, results) {
+        if (err) {
+          res.status(400).json({ error: "Error in getting all histories." });
+        }
+        res.status(200).json(results);
+      });
   },
 
   /**
@@ -29,27 +57,8 @@ const ProjectController = {
    * @param {express.Response} res
    */
 
-  createProject: (req, res) => {
-    const projectName = req.body.projectName;
-    const projectOwner = req.body.projectOwner;
-    const projectHistory = req.body.projectHistory;
-    const timeline = req.body.timeline;
-    const task = req.body.task;
-    const projectDetails = req.body.projectDetails;
-
-    const newProject = new Project({
-      projectName,
-      projectOwner,
-      projectHistory,
-      timeline,
-      projectDetails,
-      task,
-    });
-
-    newProject
-      .save()
-      .then(() => res.json("Project added!"))
-      .catch((err) => res.status(400).json("Error" + err));
+  createProject: async (req, res) => {
+    res.json(await _createProject(req.body));
   },
 
   /**
@@ -60,32 +69,87 @@ const ProjectController = {
    * @returns a single project from database
    */
 
-  getProject: async (req, res) => {
+  getProject: (req, res) => {
     // check if the incoming id is valid mongoose id
     if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.json("Invalid route/mongoose ID!");
     }
 
-    let project = await _getProject(req.params.id);
-    return project !== null
-      ? res.status(200).json(project)
-      : res.status(400).json("Error in getting a project!");
+    return Project.findByID(req.params.id)
+      .populate("timeline")
+      .populate("projectHistory")
+      .populate({
+        path: "projectHistory",
+        populate: {
+          path: "userList",
+        },
+      })
+      .populate({
+        path: "projectHistory",
+        populate: {
+          path: "timeline",
+        },
+      })
+      .populate("taskOwner", [
+        "badgeID",
+        "firstName",
+        "lastName",
+        "jobTitle",
+        "additionalInfo",
+        "emailAddress",
+      ])
+      .populate(task)
+      .exec(function (err, results) {
+        if (err) {
+          res.status(400).json({ error: "Error in getting all histories." });
+        }
+        res.status(200).json(results);
+      });
+
+
+
   },
 
   /**
-   * gets all tasks that is managed by a user by ID
+   * gets all tasks that is managed by a user by ID from the token
    *
    * @param {express.Request} req
    * @param {express.Response} res
    * @returns All tasks owned by the user
    */
   getProjectByUserId: (req, res) => {
+    const userID = decode(request.headers.authorization).id;
 
-    let userId = decode(request.headers.authorization).id
-
-    return Project.find({ projectOwner: req.params.id })
-      .then((projects) => res.json(projects))
-      .catch((err) => res.status(400).json("Error" + err));
+    return Project.find({ projectOwner: userID })
+      .populate("timeline")
+      .populate("projectHistory")
+      .populate({
+        path: "projectHistory",
+        populate: {
+          path: "userList",
+        },
+      })
+      .populate({
+        path: "projectHistory",
+        populate: {
+          path: "timeline",
+        },
+      })
+      .populate("taskOwner", [
+        "badgeID",
+        "firstName",
+        "lastName",
+        "jobTitle",
+        "additionalInfo",
+        "emailAddress",
+      ])
+      .populate(task)
+      .exec(function (err, results) {
+        if (err) {
+          res.status(400).json({ error: "Error in getting all histories." });
+        }
+        res.status(200).json(results);
+      });
   },
 };
 

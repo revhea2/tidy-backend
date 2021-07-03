@@ -13,23 +13,27 @@ const projectSchema = new Schema(
     },
     projectOwner: [
       {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: "User"
       },
     ],
     projectHistory: [
       {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: "History"
       },
     ],
     timeline: {
-      type: String,
+      type: Schema.Types.ObjectId,
+      ref: "Timeline"
     },
     projectDetails: {
       type: String,
     },
     task: [
       {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: "Task"
       },
     ],
   },
