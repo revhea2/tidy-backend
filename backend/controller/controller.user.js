@@ -106,15 +106,15 @@ const UserController = {
 
     newUser
       .save()
-      .then(() => res.json("User added!"))
+      .then(() => res.status(201).json("User added!"))
       .catch((err) => res.status(400).json("Error" + err));
   },
 
   /**
    * authenticate user by email and password
-   * 
-   * @param {express.Request} req 
-   * @param {express.Response} res 
+   *
+   * @param {express.Request} req
+   * @param {express.Response} res
    * @returns access token of the authenticated
    */
 
@@ -142,15 +142,12 @@ const UserController = {
         return res.status(400).json("Password did not match!");
       }
 
-      console.log("i was here !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-
       return res.status(200).json({
         accessToken: createAccessToken(user.toObject()),
       });
     } catch (err) {
       return res.status(400).json(err);
     }
-    
 
     //
   },
@@ -162,23 +159,34 @@ const UserController = {
    * @param {express.Response} res
    */
   userUpdate: (req, res) => {
-    User.findById(req.params.id)
-      .then((user) => {
-        user.badgeID = req.body.badgeID;
-        user.username = req.body.username;
-        user.password = req.body.password;
-        user.firstName = req.body.firstName;
-        user.lastName = req.body.lastName;
-        user.jobTitle = req.body.jobTitle;
-        user.emailAddress = req.body.emailAddress;
-        user.additionalInfo = req.body.additionalInfo;
+    let userUpdate = {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      jobTitle: req.body.jobTitle,
+      additionalInfo: req.body.additionalInfo,
+    };
 
-        user
-          .save()
-          .then(() => res.json("User updated!"))
-          .catch((err) => res.status(400).json("Error" + err));
-      })
-      .catch((err) => res.status(400).json("Error" + err));
+    const options = {
+      new: true,
+    };
+
+    User.findByIdAndUpdate(
+      req.params.id,
+      userUpdate,
+      options,
+      (error, updatedUser) => {
+        if (error) {
+          return res.status(500).json({
+            error: "Problem updating user. Please try again.",
+          });
+        }
+
+        return res.status(201).json({
+          message: "User updated successfully!",
+          user: updatedUser,
+        });
+      }
+    ).catch((err) => res.status(400).json("Error" + err));
   },
 
   /**

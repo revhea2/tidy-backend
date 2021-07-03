@@ -1,12 +1,12 @@
 user = {
-    "badgeID": "19112321",
-    "username": "genrev",
-    "password": "12312312321321",
-    "firstName": "genrevdale",
-    "lastName": "23234234",
-    "jobTitle": "!@3123123",
-    "emailAddress": "!23123213",
-    "additionalInfo": "12312412421"
+    "badgeID": "1813482",
+    "username": "revhea2",
+    "password": "BadangNicka26",
+    "firstName": "Genrev Dale",
+    "lastName": "Zapaa",
+    "jobTitle": "I eat pizza for a living.  ",
+    "emailAddress": "genrevdale@gmail.com",
+    "additionalInfo": "This user have no other infos."
 }
 
 

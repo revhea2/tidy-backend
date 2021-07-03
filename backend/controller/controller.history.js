@@ -1,5 +1,6 @@
 const express = require("express");
 const History = require("../models/history.model");
+const {_getHistory} = require("../utils/util.history");
 
 const HistoryController = {
   /**
@@ -51,9 +52,14 @@ const HistoryController = {
    */
 
   getHistory: (req, res) => {
-    return History.findById(req.params.id)
-      .then((history) => res.json(history))
-      .catch((err) => res.status(400).json("Error" + err));
+    let a;
+    try{
+      a = _getHistory(req.params.id);
+    }catch(error){
+      console.log(error)
+    }
+    
+    return a !== null? a: []
   },
 };
 

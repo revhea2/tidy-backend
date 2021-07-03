@@ -6,9 +6,11 @@ const userRoutes = express.Router();
 
 userRoutes.get("/", (req, res) => UserController.getAllUsers(req, res));
 userRoutes.post("/add", (req, res) => UserController.registerUser(req, res));
-userRoutes.post("/:id", verify, (req, res) => UserController.userUpdate(req, res));
 userRoutes.post("/login", (req, res) => UserController.loginUser(req, res));
-userRoutes.get("/:id", (req, res) => UserController.getUser(req, res));
+
+// needs to be verified
+userRoutes.get("/:id", verify, (req, res) => UserController.getUser(req, res));
+userRoutes.post("/:id", verify, (req, res) => UserController.userUpdate(req, res));
 
 
 module.exports = userRoutes;
