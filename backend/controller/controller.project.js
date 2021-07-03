@@ -1,5 +1,10 @@
 const express = require("express");
 const Project = require("../models/project.model");
+const {
+  _getProject,
+  _getAllProject,
+  _createHistory,
+} = require("../utils/util.project");
 
 const ProjectController = {
   /**
@@ -10,10 +15,11 @@ const ProjectController = {
    * @returns all projects in the database
    */
 
-  getAllProjects: (req, res) => {
-    return Project.find()
-      .then((projects) => res.send(projects))
-      .catch((err) => res.status(400).json("Error" + err));
+  getAllProjects: async (req, res) => {
+    const project = await _getAllProject();
+    return project !== null
+      ? res.status(200).json(project)
+      : res.status(400).json("Error in fetching all projects!");
   },
 
   /**
@@ -54,14 +60,16 @@ const ProjectController = {
    * @returns a single project from database
    */
 
-  getProject: (req, res) => {
+  getProject: async (req, res) => {
     // check if the incoming id is valid mongoose id
     if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.json([]);
+      return res.json("Invalid route/mongoose ID!");
     }
-    return Project.findById(req.params.id)
-      .then((project) => res.json(project))
-      .catch((err) => res.status(400).json("Error" + err));
+
+    let project = await _getProject(req.params.id);
+    return project !== null
+      ? res.status(200).json(project)
+      : res.status(400).json("Error in getting a project!");
   },
 
   /**
@@ -72,15 +80,13 @@ const ProjectController = {
    * @returns All tasks owned by the user
    */
   getProjectByUserId: (req, res) => {
-    // check if the incoming id is valid mongoose id
-    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.json([]);
-    }
+
+    let userId = decode(request.headers.authorization).id
+
     return Project.find({ projectOwner: req.params.id })
       .then((projects) => res.json(projects))
       .catch((err) => res.status(400).json("Error" + err));
   },
-
 };
 
 module.exports = ProjectController;

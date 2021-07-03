@@ -15,7 +15,7 @@ const HistoryController = {
    */
 
   getAllHistory: async (req, res) => {
-    const history = await _getAllHistory(req.params.id);
+    const history = await _getAllHistory();
     return history !== null
       ? res.status(200).json(history)
       : res.status(400).json("Error in fetching all histories!");
@@ -40,13 +40,13 @@ const HistoryController = {
    * @returns a single history from database
    */
 
-  getHistory: (req, res) => {
+  getHistory: async (req, res) => {
     // check if the incoming id is valid mongoose id
     if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.json("Invalid route!");
     }
 
-    let history = _getHistory(req.params.id);
+    let history = await _getHistory(req.params.id);
     return history !== null
       ? res.status(200).json(history)
       : res.status(400).json("Error in getting a history!");
