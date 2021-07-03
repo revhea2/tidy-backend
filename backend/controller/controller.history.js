@@ -1,6 +1,9 @@
 const express = require("express");
-const History = require("../models/history.model");
-const {_getHistory} = require("../utils/util.history");
+const {
+  _getHistory,
+  _getAllHistory,
+  _createHistory,
+} = require("../utils/util.history");
 
 const HistoryController = {
   /**
@@ -11,10 +14,11 @@ const HistoryController = {
    * @returns all histories in the database
    */
 
-  getAllHistory: (req, res) => {
-    return History.find()
-      .then((histories) => res.send(histories))
-      .catch((err) => res.status(400).json("Error" + err));
+  getAllHistory: async (req, res) => {
+    const history = await _getAllHistory(req.params.id);
+    return history !== null
+      ? res.status(200).json(history)
+      : res.status(400).json("Error in fetching all histories!");
   },
 
   /**
@@ -24,23 +28,8 @@ const HistoryController = {
    * @param {express.Response} res
    */
 
-  createHistory: (req, res) => {
-    const userList = req.body.userList;
-    const remarks = req.body.remarks;
-    const updateDate = Date(req.body.updateDate);
-    const timeline = req.body.timeline;
-
-    const newHistory = new History({
-        userList, 
-        remarks,
-        updateDate,
-        timeline
-    });
-
-    newHistory
-      .save()
-      .then(() => res.json("History added!"))
-      .catch((err) => res.status(400).json("Error" + err));
+  createHistory: async (req, res) => {
+    res.json(await _createHistory(req.body));
   },
 
   /**
@@ -52,14 +41,15 @@ const HistoryController = {
    */
 
   getHistory: (req, res) => {
-    let a;
-    try{
-      a = _getHistory(req.params.id);
-    }catch(error){
-      console.log(error)
+    // check if the incoming id is valid mongoose id
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.json("Invalid route!");
     }
-    
-    return a !== null? a: []
+
+    let history = _getHistory(req.params.id);
+    return history !== null
+      ? res.status(200).json(history)
+      : res.status(400).json("Error in getting a history!");
   },
 };
 
