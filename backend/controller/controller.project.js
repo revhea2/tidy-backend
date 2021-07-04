@@ -28,7 +28,7 @@ const ProjectController = {
           path: "timeline",
         },
       })
-      .populate("taskOwner", [
+      .populate("projectOwner", [
         "badgeID",
         "firstName",
         "lastName",
@@ -36,7 +36,7 @@ const ProjectController = {
         "additionalInfo",
         "emailAddress",
       ])
-      .populate(task)
+      .populate("task")
       .exec(function (err, results) {
         if (err) {
           res.status(400).json({ error: "Error in getting all histories." });
@@ -55,9 +55,9 @@ const ProjectController = {
   createProject: async (req, res) => {
     // const userID = decode(request.headers.authorization).id;
     // const projectOwner = [userID];
-
-    const projectOwner = project.projectOwner;
     const project = req.body;
+    const projectOwner = project.projectOwner;
+  
     const projectName = project.projectName;
 
     const projectHistory = project.projectHistory;
