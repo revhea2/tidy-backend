@@ -38,15 +38,35 @@ const TimelineController = {
    * @returns a single timeline from database
    */
 
-  getTimeline: (req, res) => {
-    return Timeline.findById(req.params.id)
-      .then((timeline) => res.json(timeline))
-      .catch((err) => res.status(400).json("Error" + err));
+  getTimeline: async (req, res) => {
+    const [isSuccesful, message] = await _getTimeline(req.params.id);
+    return isSuccesful
+      ? res.status(201).json(message)
+      : res.status(400).json(message);
   },
 };
 
+/**
+ * gets a specific timeline by ID
+ * 
+ * @param {String ID} timelineID 
+ * @returns error message and/or json of a timeline object
+ */
+const _getTimeline = (timelineID) => {
+  return Timeline.findById(timelineID)
+  .then((timeLine) => [true, timeLine])
+  .catch((err) => [false, { error: err }]);
+
+};
+
+/**
+ * creates a timeline
+ *
+ * @param {Timeline.object} timeline
+ * @returns error message and/or json of the created task object
+ */
+
 const _createTimeline = (timeline) => {
-  
   const startDate = Date.parse(timeline.startDate);
   const endDate = Date.parse(timeline.endDate);
   const progress = Number(timeline.progress);
@@ -65,5 +85,6 @@ const _createTimeline = (timeline) => {
 
 module.exports = {
   TimelineController,
-  _createTimeline
+  _createTimeline,
+  _getTimeline,
 };

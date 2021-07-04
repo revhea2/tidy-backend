@@ -212,9 +212,50 @@ const TaskController = {
       .catch((err) => res.status(400).json("Error" + err));
   },
 
-  updateTask: (req, res) => {
+  /**
+   * updates task
+   * 
+   * @param {express.Request} req
+   * @param {express.Response} res
+   */
+  taskUpdate: async (req, res) => {
+
+    const [isSuccesful, message] = await _getTimeline(req.params.id);
+
+    const [isSuccessful, timeline] = await _createTimeline(req.body.timeline);
     
-  }
+
+    let taskUpdate = {
+      timeline: req.body.timeline,
+      taskOwner: req.body.taskOwner,
+      taskName: req.body.taskName,
+      taskDetails: req.body.taskDetails,
+      weight: req.body.weight
+
+    };
+
+    const options = {
+      new: true,
+    };
+
+    Task.findByIdAndUpdate(
+      req.params.id,
+      taskUpdate,
+      options,
+      (error, updatedTask) => {
+        if (error) {
+          return res.status(500).json({
+            error: "Problem updating user. Please try again.",
+          });
+        }
+
+        return res.status(201).json({
+          message: "User updated successfully!",
+          user: updatedTask,
+        });
+      }
+    ).catch((err) => res.status(400).json("Error" + err));
+  },
 };
 
 /**
@@ -225,21 +266,21 @@ const TaskController = {
  */
 
 const _createTask = async (task) => {
-  const projectID = req.body.projectID;
-  const taskName = req.body.taskName;
-  const parentTaskID = req.body.parentTaskID;
-  const task = req.body.task;
-  const taskDetails = req.body.taskDetails;
-  const taskHistory = req.body.taskHistory;
-  const taskOwner = req.body.taskOwner;
-  const weight = req.body.weight;
-  const [isSuccessful, timeline] = await _createTimeline(req.body.timeline);
+  const projectID = task.projectID;
+  const taskName = task.taskName;
+  const parentTaskID = task.parentTaskID;
+  const _task = task.task;
+  const taskDetails = task.taskDetails;
+  const taskHistory = task.taskHistory;
+  const taskOwner = task.taskOwner;
+  const weight = task.weight;
+  const [isSuccessful, timeline] = await _createTimeline(task.timeline);
 
   const newTask = new Task({
     projectID,
     taskName,
     parentTaskID,
-    task,
+    _task,
     timeline: timeline._id,
     taskHistory,
     taskOwner,
