@@ -9,6 +9,9 @@ const historySchema = new Schema(
         ref: "User"
       },
     ],
+    taskDetails:{
+      type: String,
+    },
     remarks: {
       type: String,
     },
