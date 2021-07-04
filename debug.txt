@@ -9,27 +9,54 @@ user = {
     "additionalInfo": "This user have no other infos."
 }
 
+user1 = {
+    "badgeID": "1813481",
+    "username": "revhea",
+    "password": "BadangNicka26",
+    "firstName": "Nicole Anne",
+    "lastName": "Eledia",
+    "jobTitle": "I eat pizza for a living.  ",
+    "emailAddress": "nage@gmail.com",
+    "additionalInfo": "This user have no other infos."
+}
 
+user2 = {
+    "badgeID": "1813483",
+    "username": "revhea3",
+    "password": "BadangNicka26",
+    "firstName": "Nicole Anne",
+    "lastName": "Eledia",
+    "jobTitle": "I eat pizza for a living.  ",
+    "emailAddress": "nage3@gmail.com",
+    "additionalInfo": "This user have no other infos."
+}
 
 timeline = {
     "startDate": "2012-04-23T18:25:43.511Z",
     "endDate": "2012-04-23T18:25:43.511Z",
     "progress": 23
-
 }
 
 history = {
     "userList": ["60dd1b97c5222821a82c9bb3"],
     "remarks": "There is a change on owner",
     "updateDate": "2012-04-23T18:25:43.511Z",
-    "timeline": "60dc884cffd9d744c0cad08a"
+        "timeline": {
+    		"startDate": "2012-04-23T18:25:43.511Z",
+    		"endDate": "2012-04-23T18:25:43.511Z",
+    		"progress": 23
+		},
 }
 
 project = {
-    "projectName": "Project 1",
-    "projectOwner": ["60dd1b97c5222821a82c9bb3", "60dd55baf66728301821dce3"],
+    "projectName": "Test 1",
+    "projectOwner": ["60e08276146d7e0f88633531", "60e09d4a5bf2f305888ab3ca"],
     "projectHistory": [],
-    "timeline": "60dc884cffd9d744c0cad08a",
+    "timeline": {
+    		"startDate": "2012-04-23T18:25:43.511Z",
+    		"endDate": "2012-04-23T18:25:43.511Z",
+    		"progress": 23
+		},
     "task": []
 }
 

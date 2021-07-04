@@ -25,7 +25,8 @@ const projectSchema = new Schema(
     ],
     timeline: {
       type: Schema.Types.ObjectId,
-      ref: "Timeline"
+      ref: "Timeline",
+      required: true,
     },
     projectDetails: {
       type: String,

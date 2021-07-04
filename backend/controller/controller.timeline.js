@@ -23,21 +23,11 @@ const TimelineController = {
    * @param {express.Response} res
    */
 
-  createTimeline: (req, res) => {
-    const startDate = Date.parse(req.body.startDate);
-    const endDate = Date.parse(req.body.endDate);
-    const progress = Number(req.body.progress);
-
-    const newTimeline = new Timeline({
-      startDate,
-      endDate,
-      progress,
-    });
-
-    newTimeline
-      .save()
-      .then(() => res.json("Timeline added!"))
-      .catch((err) => res.status(400).json("Error" + err));
+  createTimeline: async (req, res) => {
+    const [isSuccesful, message] = await _createTimeline(req.body);
+    return isSuccesful
+      ? res.status(201).json(message)
+      : res.status(400).json(message);
   },
 
   /**
@@ -55,4 +45,25 @@ const TimelineController = {
   },
 };
 
-module.exports = TimelineController;
+const _createTimeline = (timeline) => {
+  
+  const startDate = Date.parse(timeline.startDate);
+  const endDate = Date.parse(timeline.endDate);
+  const progress = Number(timeline.progress);
+
+  const newTimeline = new Timeline({
+    startDate,
+    endDate,
+    progress,
+  });
+
+  return newTimeline
+    .save()
+    .then((timeLine) => [true, timeLine])
+    .catch((err) => [false, { error: err }]);
+};
+
+module.exports = {
+  TimelineController,
+  _createTimeline
+};

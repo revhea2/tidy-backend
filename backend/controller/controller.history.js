@@ -1,6 +1,6 @@
 const express = require("express");
 const History = require("../models/history.model");
-const { _createHistory } = require("../utils/util.history");
+const { _createTimeline } = require("./controller.timeline");
 
 const HistoryController = {
   /**
@@ -38,7 +38,10 @@ const HistoryController = {
    */
 
   createHistory: async (req, res) => {
-    res.json(await _createHistory(req.body));
+    const [isSuccesful, message] = await _createHistory(req.body);
+    return isSuccesful
+      ? res.status(201).json(message)
+      : res.status(400).json(message);
   },
 
   /**
@@ -49,13 +52,13 @@ const HistoryController = {
    * @returns a single history from database
    */
 
-  getHistory: async (req, res) => {
+  getHistory: (req, res) => {
     // check if the incoming id is valid mongoose id
     if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.json("Invalid route!");
+      return res.status(400).json("Invalid route/mongoose ID!");
     }
 
-    History.findById(req.params.id)
+    return History.findById(req.params.id)
       .populate("timeline")
       .populate("userList", [
         "badgeID",
@@ -72,6 +75,25 @@ const HistoryController = {
         res.status(200).json(results);
       });
   },
+};
+
+const _createHistory = async (history) => {
+  const userList = history.userList;
+  const remarks = history.remarks;
+  const updateDate = Date(history.updateDate);
+  const [isSuccessful, timeline] = await _createTimeline(history.timeline);
+
+  const newHistory = History({
+    userList,
+    remarks,
+    updateDate,
+    timeline: timeline._id,
+  });
+
+  return newHistory
+    .save()
+    .then((hist) => [true, hist])
+    .catch((err) => [false, { error: err }]);
 };
 
 module.exports = HistoryController;

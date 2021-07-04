@@ -1,5 +1,7 @@
 const express = require("express");
 const Task = require("../models/task.model");
+const { decode } = require("../auth/auth.js");
+const { _createTimeline } = require("./controller.timeline");
 
 const TaskController = {
   /**
@@ -26,7 +28,7 @@ const TaskController = {
           path: "timeline",
         },
       })
-      .populate(task)
+      .populate("task")
       .populate("taskOwner", [
         "badgeID",
         "firstName",
@@ -50,33 +52,11 @@ const TaskController = {
    * @param {express.Response} res
    */
 
-  createTask: (req, res) => {
-    const projectID = req.body.projectID;
-    const taskName = req.body.taskName;
-    const parentTaskID = req.body.parentTaskID;
-    const task = req.body.task;
-    const taskDetails = req.body.taskDetails;
-    const timeline = req.body.timeline;
-    const taskHistory = req.body.taskHistory;
-    const taskOwner = req.body.taskOwner;
-    const weight = req.body.weight;
-
-    const newTask = new Task({
-      projectID,
-      taskName,
-      parentTaskID,
-      task,
-      timeline,
-      taskHistory,
-      taskOwner,
-      weight,
-      taskDetails,
-    });
-
-    newTask
-      .save()
-      .then(() => res.json("Task added!"))
-      .catch((err) => res.status(400).json("Error" + err));
+  createTask: async (req, res) => {
+    const [isSuccesful, message] = await _createTask(req.body);
+    return isSuccesful
+      ? res.status(201).json(message)
+      : res.status(400).json(message);
   },
 
   /**
@@ -90,11 +70,39 @@ const TaskController = {
   getTask: (req, res) => {
     // check if the incoming id is valid mongoose id
     if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.json([]);
+      return res.status(400).json("Invalid route/mongoose ID!");
     }
+
     return Task.findById(req.params.id)
-      .then((task) => res.json(task))
-      .catch((err) => res.status(400).json("Error" + err));
+      .populate("timeline")
+      .populate("taskHistory")
+      .populate({
+        path: "taskHistory",
+        populate: {
+          path: "userList",
+        },
+      })
+      .populate({
+        path: "taskHistory",
+        populate: {
+          path: "timeline",
+        },
+      })
+      .populate(task)
+      .populate("taskOwner", [
+        "badgeID",
+        "firstName",
+        "lastName",
+        "jobTitle",
+        "additionalInfo",
+        "emailAddress",
+      ])
+      .exec(function (err, results) {
+        if (err) {
+          res.status(400).json({ error: "Error in getting specific history." });
+        }
+        res.status(200).json(results);
+      });
   },
 
   /**
@@ -109,9 +117,38 @@ const TaskController = {
     if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.json([]);
     }
-    return Task.find({ taskOwner: req.params.id })
-      .then((tasks) => res.json(tasks))
-      .catch((err) => res.status(400).json("Error" + err));
+    const userID = decode(request.headers.authorization).id;
+
+    return Task.findById(userID)
+      .populate("timeline")
+      .populate("taskHistory")
+      .populate({
+        path: "taskHistory",
+        populate: {
+          path: "userList",
+        },
+      })
+      .populate({
+        path: "taskHistory",
+        populate: {
+          path: "timeline",
+        },
+      })
+      .populate(task)
+      .populate("taskOwner", [
+        "badgeID",
+        "firstName",
+        "lastName",
+        "jobTitle",
+        "additionalInfo",
+        "emailAddress",
+      ])
+      .exec(function (err, results) {
+        if (err) {
+          res.status(400).json({ error: "Error in getting specific history." });
+        }
+        res.status(200).json(results);
+      });
   },
 
   /**
@@ -174,6 +211,46 @@ const TaskController = {
       .then((tasks) => res.json(tasks))
       .catch((err) => res.status(400).json("Error" + err));
   },
+
+  updateTask: (req, res) => {
+    
+  }
+};
+
+/**
+ * saves a task in database
+ *
+ * @param {Task.object} task
+ * @returns error message or task in json form
+ */
+
+const _createTask = async (task) => {
+  const projectID = req.body.projectID;
+  const taskName = req.body.taskName;
+  const parentTaskID = req.body.parentTaskID;
+  const task = req.body.task;
+  const taskDetails = req.body.taskDetails;
+  const taskHistory = req.body.taskHistory;
+  const taskOwner = req.body.taskOwner;
+  const weight = req.body.weight;
+  const [isSuccessful, timeline] = await _createTimeline(req.body.timeline);
+
+  const newTask = new Task({
+    projectID,
+    taskName,
+    parentTaskID,
+    task,
+    timeline: timeline._id,
+    taskHistory,
+    taskOwner,
+    weight,
+    taskDetails,
+  });
+
+  return newTask
+    .save()
+    .then((task) => [true, task])
+    .catch((err) => [false, { error: err }]);
 };
 
 module.exports = TaskController;

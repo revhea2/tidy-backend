@@ -1,12 +1,7 @@
 const express = require("express");
 const Project = require("../models/project.model");
-const {
-  _getProject,
-  _getAllProject,
-  _createProject,
-} = require("../utils/util.project");
-const { _getProjectHistories } = require("../utils/util.history");
 const { decode } = require("../auth/auth.js");
+const { _createTimeline } = require("./controller.timeline");
 
 const ProjectController = {
   /**
@@ -58,7 +53,31 @@ const ProjectController = {
    */
 
   createProject: async (req, res) => {
-    res.json(await _createProject(req.body));
+    // const userID = decode(request.headers.authorization).id;
+    // const projectOwner = [userID];
+
+    const projectOwner = project.projectOwner;
+    const project = req.body;
+    const projectName = project.projectName;
+
+    const projectHistory = project.projectHistory;
+    const task = project.task;
+    const projectDetails = project.projectDetails;
+    const [isSuccessful, timeline] = await _createTimeline(project.timeline);
+
+    const newProject = new Project({
+      projectName,
+      projectOwner,
+      projectHistory,
+      timeline: timeline._id,
+      projectDetails,
+      task,
+    });
+
+    return newProject
+      .save()
+      .then((project) => res.status(201).json(project))
+      .catch((err) => res.status(400).json("Error" + err));
   },
 
   /**
@@ -72,7 +91,7 @@ const ProjectController = {
   getProject: (req, res) => {
     // check if the incoming id is valid mongoose id
     if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.json("Invalid route/mongoose ID!");
+      return res.status(400).json("Invalid route/mongoose ID!");
     }
 
     return Project.findByID(req.params.id)
@@ -105,9 +124,6 @@ const ProjectController = {
         }
         res.status(200).json(results);
       });
-
-
-
   },
 
   /**
