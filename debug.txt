@@ -16,7 +16,7 @@ user = {
 
 project = {
     "projectName": "",
-    "projectOwner": [""],
+    "projectOwner": [],
     "projectHistory": [],
     "timeline": {
     		"startDate": "2012-04-23T18:25:43.511Z",
@@ -37,15 +37,16 @@ task = {
         "endDate": "2012-04-23T18:25:43.511Z",
         "progress": 0
     },
-    "taskHistory": [""],
-    "taskOwner": [""],
+    "taskHistory": [],
+    "taskOwner": [],
     "weight": 0
+    "taskDetails": "HEEEEEEEEEEEEEEEEEEEEEEEEEELP"
 }
 
 
 
 history = {
-    "userList": [""],
+    "userList": [],
     "remarks": "There is a change on owner",
     "updateDate": "2012-04-23T18:25:43.511Z",
     "timeline": {

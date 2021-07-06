@@ -75,25 +75,29 @@ const HistoryController = {
         res.status(200).json(results);
       });
   },
-};
 
-const _createHistory = async (history) => {
-  const userList = history.userList;
-  const remarks = history.remarks;
-  const updateDate = Date(history.updateDate);
-  const [isSuccessful, timeline] = await _createTimeline(history.timeline);
+  _createHistory: async (history) => {
 
-  const newHistory = History({
-    userList,
-    remarks,
-    updateDate,
-    timeline: timeline._id,
-  });
+    let historyObject = {
+      remarks: history.remarks,
+      updateDate: Date.now(),
+    };
 
-  return newHistory
-    .save()
-    .then((hist) => [true, hist])
-    .catch((err) => [false, { error: err }]);
+    if (history.userList) {
+      historyObject["userList"] = history.userList;
+    }
+    if (history.timeline) {
+      const [isSuccessful, timeline] = await _createTimeline(history.timeline);
+      historyObject["timeline"] = timeline._id;
+    }
+
+    const newHistory = History(historyObject);
+
+    return newHistory
+      .save()
+      .then((hist) => [true, hist])
+      .catch((err) => [false, { error: err }]);
+  },
 };
 
 module.exports = HistoryController;

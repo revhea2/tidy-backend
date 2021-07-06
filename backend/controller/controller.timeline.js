@@ -44,47 +44,41 @@ const TimelineController = {
       ? res.status(201).json(message)
       : res.status(400).json(message);
   },
+
+  /**
+   * gets a specific timeline by ID
+   *
+   * @param {String ID} timelineID
+   * @returns error message and/or json of a timeline object
+   */
+  _getTimeline: (timelineID) => {
+    return Timeline.findById(timelineID)
+      .then((timeLine) => [true, timeLine])
+      .catch((err) => [false, { error: err }]);
+  },
+
+  /**
+   * creates a timeline
+   *
+   * @param {Timeline.object} timeline
+   * @returns error message and/or json of the created task object
+   */
+  _createTimeline: (timeline) => {
+    const startDate = Date.parse(timeline.startDate);
+    const endDate = Date.parse(timeline.endDate);
+    const progress = Number(timeline.progress);
+
+    const newTimeline = new Timeline({
+      startDate,
+      endDate,
+      progress,
+    });
+
+    return newTimeline
+      .save()
+      .then((timeLine) => [true, timeLine])
+      .catch((err) => [false, { error: err }]);
+  },
 };
 
-/**
- * gets a specific timeline by ID
- * 
- * @param {String ID} timelineID 
- * @returns error message and/or json of a timeline object
- */
-const _getTimeline = (timelineID) => {
-  return Timeline.findById(timelineID)
-  .then((timeLine) => [true, timeLine])
-  .catch((err) => [false, { error: err }]);
-
-};
-
-/**
- * creates a timeline
- *
- * @param {Timeline.object} timeline
- * @returns error message and/or json of the created task object
- */
-
-const _createTimeline = (timeline) => {
-  const startDate = Date.parse(timeline.startDate);
-  const endDate = Date.parse(timeline.endDate);
-  const progress = Number(timeline.progress);
-
-  const newTimeline = new Timeline({
-    startDate,
-    endDate,
-    progress,
-  });
-
-  return newTimeline
-    .save()
-    .then((timeLine) => [true, timeLine])
-    .catch((err) => [false, { error: err }]);
-};
-
-module.exports = {
-  TimelineController,
-  _createTimeline,
-  _getTimeline,
-};
+module.exports = TimelineController;
