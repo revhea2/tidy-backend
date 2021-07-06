@@ -26,6 +26,22 @@ project = {
     "task": []
 }
 
+example project:
+
+{
+    "projectName": "Genrev Dale",
+    "projectOwner": ["60e13e4c5268ef3018ce905f"],
+    "projectHistory": [],
+    "timeline": {
+    		"startDate": "2012-04-23T18:25:43.511Z",
+    		"endDate": "2012-04-23T18:25:43.511Z",
+    		"progress": 23
+		},
+    "task": []
+}
+
+=====================
+
 
 
 task = {
@@ -39,7 +55,7 @@ task = {
     },
     "taskHistory": [],
     "taskOwner": [],
-    "weight": 0
+    "weight": 0,
     "taskDetails": "HEEEEEEEEEEEEEEEEEEEEEEEEEELP"
 }
 
@@ -56,4 +72,21 @@ history = {
 	},
 }
 
+
+
+
+{
+    "projectID" : "60e13f2a56b6382cfc3d2472",
+    "taskName": "Additional ",
+    "task": [],
+    "timeline": {
+        "startDate": "2012-04-23T18:25:43.511Z",
+        "endDate": "2012-04-23T18:25:43.511Z",
+        "progress": 0
+    },
+    "taskHistory": [],
+    "taskOwner": ["60e13e4c5268ef3018ce905f"],
+    "weight": 0,
+    "taskDetails": "HEEEEEEEEEEEEEEEEEEEEEEEEEELP"
+}
 
