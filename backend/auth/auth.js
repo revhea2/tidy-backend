@@ -35,10 +35,9 @@ const verify = (req, res, next) => {
 };
 
 const decode = (token) => {
-  if (typeof bearerHeader !== "undefined") {
+  if (typeof token !== "undefined") {
     const [bearer, bearerToken] = token.split(" ");
-
-    return jwt.verify(token, secret, (error, data) => {
+    return jwt.verify(bearerToken, secret, (error, data) => {
       return error ? null : jwt.decode(bearerToken, { complete: true }).payload;
     });
   }
@@ -47,4 +46,5 @@ const decode = (token) => {
 module.exports = {
   createAccessToken,
   verify,
+  decode
 };

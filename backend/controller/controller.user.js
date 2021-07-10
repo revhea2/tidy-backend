@@ -5,7 +5,7 @@ const {
   checkUserRegistrationFieldsValidity,
 } = require("../utils/util.controller");
 
-const { createAccessToken } = require("../auth/auth.js");
+const { createAccessToken, decode } = require("../auth/auth.js");
 const UserController = {
   /**
    * gets all users from the database
@@ -201,6 +201,20 @@ const UserController = {
     return User.findById(req.params.id)
       .then((user) => res.json(user))
       .catch((err) => res.status(400).json("Error" + err));
+  },
+
+  /**
+   * retrieve user info based on JWT received
+   * 
+   * @param {express.Request} req 
+   * @param {express.Response} res 
+   */
+  getCurrentUser: (req, res) => {
+    let userID = decode(req.headers.authorization).id
+
+    return User.findById(userID)
+    .then((user) => res.json(user))
+    .catch((err) => res.status(400).json("Error" + err));
   },
 };
 
