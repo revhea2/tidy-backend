@@ -115,6 +115,7 @@ const ProjectController = {
         "emailAddress",
       ])
       .populate(task)
+      .sort({ createdAt: -1 })
       .exec(function (err, results) {
         if (err) {
           res.status(400).json({ error: "Error in getting all histories." });
