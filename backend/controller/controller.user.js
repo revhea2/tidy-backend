@@ -16,7 +16,9 @@ const UserController = {
    */
 
   getAllUsers: (req, res) => {
-    return User.find().select("_id lastName firstName")
+    let userID = decode(req.headers.authorization).id
+
+    return User.find({ "_id" : { $ne: userID } }).select("_id lastName firstName")
       .then((data) => res.send(data))
       .catch((err) => res.status(400).json("Error" + err));
   },
