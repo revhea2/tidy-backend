@@ -19,3 +19,4 @@ projectRoutes.put("/update", (req, res) => ProjectController.updateProject(req, 
 projectRoutes.get("/:id", (req, res) => ProjectController.getProject(req, res));
 
 module.exports = projectRoutes;
+
