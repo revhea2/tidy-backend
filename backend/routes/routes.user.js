@@ -9,6 +9,8 @@ userRoutes.post("/add", (req, res) => UserController.registerUser(req, res));
 userRoutes.post("/login", (req, res) => UserController.loginUser(req, res));
 
 // needs to be verified
+
+userRoutes.get("/current", verify, (req, res) => UserController.getCurrentUser(req, res));
 userRoutes.get("/:id", verify, (req, res) => UserController.getUser(req, res));
 userRoutes.post("/:id", verify, (req, res) => UserController.userUpdate(req, res));
 
