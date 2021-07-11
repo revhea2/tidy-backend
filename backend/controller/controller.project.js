@@ -114,7 +114,7 @@ const ProjectController = {
         "additionalInfo",
         "emailAddress",
       ])
-      .populate(task)
+      .populate("task")
       .sort({ createdAt: -1 })
       .exec(function (err, results) {
         if (err) {
