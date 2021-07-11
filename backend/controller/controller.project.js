@@ -89,7 +89,7 @@ const ProjectController = {
    * @returns All tasks owned by the user
    */
   getProjectByUserId: (req, res) => {
-    const userID = decode(request.headers.authorization).id;
+    const userID = decode(req.headers.authorization).id;
 
     return Project.find({ projectOwner: userID })
       .populate("timeline")
@@ -106,7 +106,7 @@ const ProjectController = {
           path: "timeline",
         },
       })
-      .populate("taskOwner", [
+      .populate("projectOwner", [
         "badgeID",
         "firstName",
         "lastName",
