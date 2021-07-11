@@ -90,3 +90,16 @@ history = {
     "taskDetails": "HEEEEEEEEEEEEEEEEEEEEEEEEEELP"
 }
 
+
+
+update project
+{
+  "_id": "60e13f2a56b6382cfc3d2472",
+	"projectOwner": ["60e13e4c5268ef3018ce905f"],
+  "projectName": "Geah Testing AHAHAHA",
+  "timeline":  {
+    		"startDate": "2012-04-23T18:25:43.511Z",
+    		"endDate": "2012-04-23T18:25:43.511Z",
+    		"progress": 23
+		}
+}

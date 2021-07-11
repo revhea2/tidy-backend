@@ -32,7 +32,7 @@ const registerValidation = (data) => {
     lastName: Joi.string().min(1).required(),
     jobTitle: Joi.string().min(1).required(),
     emailAddress: Joi.string().min(6).email(),
-    additionalInfo: Joi.string(),
+    additionalInfo: Joi.string().allow(null, '')
   });
 
   return userSchema.validate(data);
