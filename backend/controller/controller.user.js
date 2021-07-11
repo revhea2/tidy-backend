@@ -159,6 +159,9 @@ const UserController = {
    * @param {express.Response} res
    */
   userUpdate: (req, res) => {
+
+    let userID = decode(req.headers.authorization).id
+
     let userUpdate = {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
@@ -171,7 +174,7 @@ const UserController = {
     };
 
     User.findByIdAndUpdate(
-      req.params.id,
+      userID,
       userUpdate,
       options,
       (error, updatedUser) => {
