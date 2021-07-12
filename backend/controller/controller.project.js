@@ -166,7 +166,7 @@ const ProjectController = {
    * @param {express.Response} res
    * @returns total progress of project
    */
-  computeProjectProgress: (req, res) => {
+  computeProjectProgress: async (req, res) => {
     if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json("Invalid route/mongoose ID!");
     }
@@ -174,7 +174,7 @@ const ProjectController = {
     const [isSuccesful, result] = await _getProject(req.params.id);
 
     if (isSuccessful) {
-      let directTasks = result.task;
+      let directTasks = result.task; 
       const tree = _createTree(directTasks);
     }
   },
