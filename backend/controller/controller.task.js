@@ -40,6 +40,7 @@ const TaskController = {
         "additionalInfo",
         "emailAddress",
       ])
+      .sort({ createdAt: -1 })
       .exec(function (err, results) {
         if (err) {
           res.status(400).json({ error: "Error in getting all histories." });
@@ -111,7 +112,7 @@ const TaskController = {
     // }
     const userID = decode(req.headers.authorization).id;
 
-    return Task.findById(userID)
+    return Task.find({ taskOwner: userID })
       .populate("timeline")
       .populate("taskHistory")
       .populate({

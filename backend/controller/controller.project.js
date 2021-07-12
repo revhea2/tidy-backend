@@ -125,7 +125,7 @@ const ProjectController = {
       .sort({ createdAt: -1 })
       .exec(function (err, results) {
         if (err) {
-          res.status(400).json({ error: "Error in getting all histories." });
+          res.status(400).json({ error: "Error in getting all projects." });
         }
         res.status(200).json(results);
       });
