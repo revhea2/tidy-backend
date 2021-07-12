@@ -335,13 +335,15 @@ const _updateTask = async (task) => {
  */
 
 const _createTask = async (task) => {
+  const userID = decode(req.headers.authorization).id;
+
   const parentTaskID = task.parentTaskID;
   const project = task.project;
   const taskName = task.taskName;
   const _task = task.task;
   const taskDetails = task.taskDetails;
   const taskHistory = task.taskHistory;
-  const taskOwner = task.taskOwner;
+  const taskOwner =  [userID, ...task.taskOwner];
   const weight = task.weight;
   const [isSuccessful, timeline] = await _createTimeline(task.timeline);
 

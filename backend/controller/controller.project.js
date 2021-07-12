@@ -173,32 +173,57 @@ const ProjectController = {
 
     const [isSuccesful, result] = await _getProject(req.params.id);
 
-    if (isSuccessful) {
+    if (isSuccesful) {
       let directTasks = result.task; 
       const tree = _createTree(directTasks);
+      _bfs(tree);
+
     }
+    return res.status(200).json("No error!");
   },
 };
 
+
+const _bfs = (tree) =>{
+
+  queue = [tree]
+  
+  while(queue.length > 0){
+    const n = queue.length;
+    const currentNode = queue.shift()
+    while(n > 0){
+      
+
+      n--;
+    }
+  }
+
+};
+
+
 const _createTree = (directTasks) => {
-    let parentNode = Node(0);
+    let parentNode = new Node(0);
     let stack = directTasks;
 
     while(stack.length > 0){
       const task = stack.pop();
-      let node = Node(task.weight)
+      let node = new Node(task.weight);
       _dfsInsert(node, task);
+      parentNode.addChild(node);
     }
+
+    return parentNode;
 
 };
 
 const _dfsInsert = async (node, task) => {
   let stack = task.task;
   while(stack.length > 0){
-      const as = 2;
+    const subtask = stack.pop();
+    let childNode = new Node(subtask.weight)
+    _dfsInsert(childNode, subtask);
+    node.addChild(childNode)
   }
-  
-
 }
 
 

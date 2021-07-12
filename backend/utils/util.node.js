@@ -4,8 +4,8 @@ class Node {
     this.children = [];
   }
 
-  addChildren(child) {
-    children.push(child);
+  addChild(child) {
+    this.children.push(child);
   }
 
 }

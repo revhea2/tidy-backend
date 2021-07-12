@@ -16,6 +16,7 @@ projectRoutes.get("/", (req, res) => ProjectController.getAllProjects(req, res))
 projectRoutes.post("/add", (req, res) => ProjectController.createProject(req, res));
 projectRoutes.get("/user", (req, res) => ProjectController.getProjectByUserId(req, res));
 projectRoutes.put("/update", (req, res) => ProjectController.updateProject(req, res));
+projectRoutes.get("/calculate/:id", (req, res) => ProjectController.computeProjectProgress(req, res));
 projectRoutes.get("/:id", (req, res) => ProjectController.getProject(req, res));
 
 module.exports = projectRoutes;
