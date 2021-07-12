@@ -106,10 +106,10 @@ const TaskController = {
    */
   getTaskByUserId: (req, res) => {
     // check if the incoming id is valid mongoose id
-    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.json([]);
-    }
-    const userID = decode(request.headers.authorization).id;
+    // if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+    //   return res.json([]);
+    // }
+    const userID = decode(req.headers.authorization).id;
 
     return Task.findById(userID)
       .populate("timeline")
@@ -126,7 +126,7 @@ const TaskController = {
           path: "timeline",
         },
       })
-      .populate(task)
+      .populate("task")
       .populate("taskOwner", [
         "badgeID",
         "firstName",
@@ -268,6 +268,7 @@ const _getTask = (id) => {
     });
 };
 
+
 const _updateTask = async (task) => {
   const [successful, oldTask] = await _getTask(task._id);
   let remarks = "";
@@ -333,7 +334,6 @@ const _updateTask = async (task) => {
 
 const _createTask = async (task) => {
   const parentTaskID = task.parentTaskID;
-
   const projectID = task.projectID;
   const taskName = task.taskName;
   const _task = task.task;
