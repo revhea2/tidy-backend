@@ -57,8 +57,7 @@ const ProjectController = {
 
   createProject: async (req, res) => {
     const userID = decode(request.headers.authorization).id;
-    
-
+  
     const project = req.body;
     const projectOwner = [userID,...project.projectOwner];
     const projectName = project.projectName;
@@ -78,7 +77,13 @@ const ProjectController = {
 
     return newProject
       .save()
-      .then((project) => res.status(201).json(project))
+      .then((project) => {
+        const [isSuccesful, message] = await _getProject(project_.id);
+   
+        return isSuccesful
+          ? res.status(201).json(message)
+          : res.status(400).json(message);
+      })
       .catch((err) => res.status(400).json("Error" + err));
   },
 
