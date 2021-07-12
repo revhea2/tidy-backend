@@ -1,9 +1,10 @@
 const express = require("express");
 const Project = require("../models/project.model");
+const Task = require("../models/task.model");
 const { decode } = require("../auth/auth.js");
 const { _createTimeline } = require("./controller.timeline");
 const { _createHistory } = require("./controller.history");
-
+const Node = require("../utils/util.node");
 
 const ProjectController = {
   /**
@@ -57,9 +58,9 @@ const ProjectController = {
 
   createProject: async (req, res) => {
     const userID = decode(req.headers.authorization).id;
-  
+
     const project = req.body;
-    const projectOwner = [userID,...project.projectOwner];
+    const projectOwner = [userID, ...project.projectOwner];
     const projectName = project.projectName;
     const projectHistory = project.projectHistory;
     const task = project.task;
@@ -77,13 +78,12 @@ const ProjectController = {
 
     return newProject
       .save()
-      .then( async (project) =>  {
+      .then(async (project) => {
         const [isSuccesful, message] = await _getProject(project._id);
-   
+
         return isSuccesful
           ? res.status(201).json(message)
           : res.status(400).json(message);
-
       })
       .catch((err) => res.status(400).json("Error" + err));
   },
@@ -151,13 +151,75 @@ const ProjectController = {
     if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json("Invalid route/mongoose ID!");
     }
+
     const [isSuccesful, message] = await _getProject(req.params.id);
-   
+
     return isSuccesful
       ? res.status(201).json(message)
       : res.status(400).json(message);
   },
 
+  /**
+   * computes the current total progress of a project
+   *
+   * @param {express.Request} req
+   * @param {express.Response} res
+   * @returns total progress of project
+   */
+  computeProjectProgress: (req, res) => {
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json("Invalid route/mongoose ID!");
+    }
+
+    const [isSuccesful, result] = await _getProject(req.params.id);
+
+    if (isSuccessful) {
+      let directTasks = result.task;
+      const tree = _createTree(directTasks);
+    }
+  },
+};
+
+const _createTree = (directTasks) => {
+    let parentNode = Node(0);
+    let stack = directTasks;
+
+    while(stack.length > 0){
+      const task = stack.pop();
+      let node = Node(task.weight)
+      _dfsInsert(node, task);
+    }
+
+};
+
+const _dfsInsert = async (node, task) => {
+  let stack = task.task;
+  while(stack.length > 0){
+      const as = 2;
+  }
+  
+
+}
+
+
+
+/**
+ * gets a single task from db by ID
+ *
+ * @param {String.ID of Task object} id
+ * @returns a single task
+ */
+
+const _getTask = (id) => {
+  return Task.findById(id)
+    .populate("timeline")
+    .populate("task")
+    .then((results) => {
+      return [true, results];
+    })
+    .catch((err) => {
+      return [false, { error: err }];
+    });
 };
 
 const _updateProject = async (project) => {
@@ -170,21 +232,20 @@ const _updateProject = async (project) => {
     history["userList"] = oldProject.projectOwner;
     tempProject["projectOwner"] = project.projectOwner;
     remarks += "Project owner was altered. \n";
-  
   }
   if (project.projectName) {
     tempProject["projectName"] = project.projectName;
     remarks += "Project name was altered. \n";
   }
   if (project.task) {
-    history["task"] = oldProject.task
+    history["task"] = oldProject.task;
     tempProject["task"] = project.task;
     remarks += "A task was added. \n";
   }
   if (project.timeline) {
     history["timeline"] = oldProject.timeline;
     const [isSuccessful, newTimeline] = await _createTimeline(project.timeline);
-    tempProject["timeline"] = newTimeline._id
+    tempProject["timeline"] = newTimeline._id;
     remarks += "Timeline was changed. \n";
   }
   if (project.projectDetails) {
@@ -195,69 +256,62 @@ const _updateProject = async (project) => {
   history["remarks"] = remarks;
 
   const [isSuccesful, newHistory] = await _createHistory(history);
-  
 
-
-  if(isSuccesful){
-    tempProject["projectHistory"]  = oldProject.projectHistory.concat(newHistory._id)
+  if (isSuccesful) {
+    tempProject["projectHistory"] = oldProject.projectHistory.concat(
+      newHistory._id
+    );
+  } else {
+    tempProject["projectHistory"] = oldProject.projectHistory;
   }
-  else{
-    tempProject["projectHistory"] = oldProject.projectHistory
-  }
-
-
 
   const options = {
     new: true,
   };
 
-  return Project.findByIdAndUpdate(
-    project._id,
-    tempProject,
-    options,
-  ).then((project) => {
-    return [true, project];
-  }).catch((err) => {
-    return [false, { err: err }];
-  });
+  return Project.findByIdAndUpdate(project._id, tempProject, options)
+    .then((project) => {
+      return [true, project];
+    })
+    .catch((err) => {
+      return [false, { err: err }];
+    });
 };
 
+// all utility methods starts here
 
-  // all utility methods starts here
-
-  const _getProject = (id) => {
-      return Project.findById(id)
-        .populate("timeline")
-        .populate("projectHistory")
-        .populate({
-          path: "projectHistory",
-          populate: {
-            path: "userList",
-          },
-        })
-        .populate({
-          path: "projectHistory",
-          populate: {
-            path: "timeline",
-          },
-        })
-        .populate("projectOwner", [
-          "badgeID",
-          "firstName",
-          "lastName",
-          "jobTitle",
-          "additionalInfo",
-          "emailAddress",
-        ])
-        .populate("task")
-        .then( results => {
-          return [true, results];
-        })
-        .catch((err) => {
-          return [false, { error: err }];
-        });
-
-  };
+const _getProject = (id) => {
+  return Project.findById(id)
+    .populate("timeline")
+    .populate("projectHistory")
+    .populate({
+      path: "projectHistory",
+      populate: {
+        path: "userList",
+      },
+    })
+    .populate({
+      path: "projectHistory",
+      populate: {
+        path: "timeline",
+      },
+    })
+    .populate("projectOwner", [
+      "badgeID",
+      "firstName",
+      "lastName",
+      "jobTitle",
+      "additionalInfo",
+      "emailAddress",
+    ])
+    .populate("task")
+    .then((results) => {
+      return [true, results];
+    })
+    .catch((err) => {
+      return [false, { error: err }];
+    });
+};
 
 module.exports.ProjectController = ProjectController;
 module.exports._getProject = _getProject;

@@ -98,7 +98,7 @@ const TaskController = {
       : res.status(400).json(message);
   },
 
-  /**
+  /** 
    * gets all tasks that is managed by a user by ID
    *
    * @param {express.Request} req
@@ -239,6 +239,7 @@ const TaskController = {
 const _getTask = (id) => {
   return Task.findById(id)
     .populate("timeline")
+    .populate("project", "projectName")
     .populate("taskHistory")
     .populate({
       path: "taskHistory",
@@ -361,5 +362,9 @@ const _createTask = async (task) => {
     .then((task) => [true, task])
     .catch((err) => [false, { error: err }]);
 };
+
+
+
+
 
 module.exports = TaskController;
