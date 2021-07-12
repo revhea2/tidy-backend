@@ -137,7 +137,7 @@ const TaskController = {
       ])
       .exec(function (err, results) {
         if (err) {
-          res.status(400).json({ error: "Error in getting specific history." });
+          res.status(400).json({ error: "Error in getting specific task." });
         }
         res.status(200).json(results);
       });
