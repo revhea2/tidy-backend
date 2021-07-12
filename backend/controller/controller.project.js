@@ -56,10 +56,11 @@ const ProjectController = {
    */
 
   createProject: async (req, res) => {
-    // const userID = decode(request.headers.authorization).id;
-    // const projectOwner = [userID];
+    const userID = decode(request.headers.authorization).id;
+    
+
     const project = req.body;
-    const projectOwner = project.projectOwner;
+    const projectOwner = [userID,...project.projectOwner];
     const projectName = project.projectName;
     const projectHistory = project.projectHistory;
     const task = project.task;
