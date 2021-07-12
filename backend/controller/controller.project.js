@@ -174,59 +174,55 @@ const ProjectController = {
     const [isSuccesful, result] = await _getProject(req.params.id);
 
     if (isSuccesful) {
-      let directTasks = result.task; 
+      const directTasks = result.task;
       const tree = _createTree(directTasks);
       _bfs(tree);
-
     }
     return res.status(200).json("No error!");
   },
 };
 
+const _bfs = (tree) => {
+  let queue = [tree];
 
-const _bfs = (tree) =>{
-
-  queue = [tree]
-  
-  while(queue.length > 0){
-    const n = queue.length;
-    const currentNode = queue.shift()
-    while(n > 0){
-      
-
+  while (queue.length > 0) {
+    let n = queue.length;
+    const currentNode = queue.shift();
+    while (n > 0) {
+      console.log(currentNode.weight)
+      queue.concat(currentNode.children);
       n--;
     }
   }
-
 };
 
-
 const _createTree = (directTasks) => {
-    let parentNode = new Node(0);
-    let stack = directTasks;
+  let parentNode = new Node(0);
+  let stack = directTasks;
+  while (stack.length > 0) {
+    const task = stack.pop();
+    let node = new Node(task.weight);
+    _dfsInsert(node, task);
+    parentNode.addChild(node);
+  }
 
-    while(stack.length > 0){
-      const task = stack.pop();
-      let node = new Node(task.weight);
-      _dfsInsert(node, task);
-      parentNode.addChild(node);
-    }
-
-    return parentNode;
-
+  return parentNode;
 };
 
 const _dfsInsert = async (node, task) => {
+  
   let stack = task.task;
-  while(stack.length > 0){
+  while (stack.length > 0) {
     const subtask = stack.pop();
-    let childNode = new Node(subtask.weight)
-    _dfsInsert(childNode, subtask);
-    node.addChild(childNode)
+    const [isOkay, taskObj] = await _getTask(subtask);
+    if(isOkay){
+      let childNode = new Node(taskObj.weight);
+      _dfsInsert(childNode, taskObj);
+      node.addChild(childNode);
+    }
+
   }
-}
-
-
+};
 
 /**
  * gets a single task from db by ID

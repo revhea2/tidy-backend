@@ -57,7 +57,12 @@ const TaskController = {
    */
 
   createTask: async (req, res) => {
+    
+    const userID = decode(req.headers.authorization).id;
+    req.body["taskOwner"] = [userID, ...req.body["taskOwner"]]
+    
     const [isSuccesful, message] = await _createTask(req.body);
+   
 
     if (!isSuccesful) {
       res.status(400).json(message);
@@ -335,7 +340,6 @@ const _updateTask = async (task) => {
  */
 
 const _createTask = async (task) => {
-  const userID = decode(req.headers.authorization).id;
 
   const parentTaskID = task.parentTaskID;
   const project = task.project;
@@ -343,7 +347,7 @@ const _createTask = async (task) => {
   const _task = task.task;
   const taskDetails = task.taskDetails;
   const taskHistory = task.taskHistory;
-  const taskOwner =  [userID, ...task.taskOwner];
+  const taskOwner =  task.taskOwner;
   const weight = task.weight;
   const [isSuccessful, timeline] = await _createTimeline(task.timeline);
 
