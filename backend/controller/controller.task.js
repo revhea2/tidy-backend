@@ -65,7 +65,7 @@ const TaskController = {
 
     // if it is a root task
     if (message.parentTaskID == null) {
-      const [b, projectObj] = await _getProject(message.projectID);
+      const [b, projectObj] = await _getProject(message.project);
       projectObj.task = projectObj.task.push(message._id);
       await _updateProject({ _id: projectObj._id, task: projectObj.task });
     } else {
@@ -335,7 +335,7 @@ const _updateTask = async (task) => {
 
 const _createTask = async (task) => {
   const parentTaskID = task.parentTaskID;
-  const projectID = task.projectID;
+  const project = task.project;
   const taskName = task.taskName;
   const _task = task.task;
   const taskDetails = task.taskDetails;
@@ -345,7 +345,7 @@ const _createTask = async (task) => {
   const [isSuccessful, timeline] = await _createTimeline(task.timeline);
 
   const newTask = new Task({
-    projectID,
+    project,
     taskName,
     parentTaskID,
     _task,

@@ -3,8 +3,9 @@ const Schema = mongoose.Schema;
 
 const taskSchema = new Schema(
   {
-    projectID: {
-      type: String,
+    project: {
+      type: Schema.Types.ObjectId,
+      ref: "Project",
       required: true,
     },
     taskName: {
