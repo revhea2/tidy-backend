@@ -4,6 +4,7 @@ const { decode } = require("../auth/auth.js");
 const { _createTimeline } = require("./controller.timeline");
 const { _getProject, _updateProject } = require("./controller.project");
 const { _createHistory } = require("./controller.history");
+const Node = require("../utils/util.node");
 
 
 const TaskController = {
@@ -231,8 +232,86 @@ const TaskController = {
       : res.status(400).json(message);
   },
 
+    /**
+   * computes the current total progress of a task
+   *
+   * @param {express.Request} req
+   * @param {express.Response} res
+   * @returns total progress of task
+   */
+     computeTaskProgress: async (req, res) => {
+      if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+        return res.status(400).json("Invalid route/mongoose ID!");
+      }
+  
+      const [isSuccesful, result] = await _getTask(req.params.id);
+  
+      if (isSuccesful) {
+        const tree = await _createTree(result);
+        // _bfs(tree);
+        console.log(_dfs(tree));
+      }
+      return res.status(200).json("No error!");
+    },
+
 
 };
+
+const _dfs = (node) => {
+  console.log(node)
+  var total_progress = 0;
+  var total_weight = 0;
+
+  if (node.children.length == 0) {
+    return node.progress;
+  } else {
+    node.children.forEach((child) => {
+      total_progress += child.weight * _dfs(child);
+      total_weight += child.weight;
+    });
+  }
+  return total_progress / total_weight;
+};
+
+const _createTree = async (root) => {
+  var parentNode = new Node(root.weight, root.timeline.progress, root.taskName);
+
+  var stack = [parentNode];
+  while (stack.length > 0) {
+    const task = stack.pop();
+    console.log(task)
+    const [isOkay, taskObj] = await _getTask(task._id);
+    if (isOkay && taskObj) {
+      var node = new Node(
+        task.weight,
+        taskObj.timeline.progress,
+        taskObj.taskName
+      );
+      await _dfsInsert(node, taskObj);
+      parentNode.addChild(node);
+    }
+  }
+
+  return parentNode;
+};
+
+const _dfsInsert = async (node, task) => {
+  var stack = task.task;
+  while (stack.length > 0) {
+    const subtask = stack.pop();
+    const [isOkay, taskObj] = await _getTask(subtask._id);
+    if (isOkay && taskObj) {
+      var childNode = new Node(
+        taskObj.weight,
+        taskObj.timeline.progress,
+        taskObj.taskName
+      );
+      await _dfsInsert(childNode, taskObj);
+      node.addChild(childNode);
+    }
+  }
+};
+
 
 /**
  * gets a single task from db by ID

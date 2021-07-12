@@ -10,8 +10,10 @@ const taskRoutes = express.Router();
 // taskRoutes.get("/user", (req, res) => TaskController.getTaskByUserId(req, res));
 // taskRoutes.get("/subtask/:id", verify, (req, res) => TaskController.getSubtask(req, res));
 // taskRoutes.get("/project/:id", verify, (req, res) => TaskController.getDirectTaskByProjectId(req, res));
-// taskRoutes.get("/:id", verify, (req, res) => TaskController.getTask(req, res));
 // taskRoutes.put("/update", verify, (req, res) => TaskController.updateTask(req, res));
+// taskRoutes.get("/calculate/:id", verify, (req, res) => ProjectController.computeTaskProgress(req, res));
+// taskRoutes.get("/:id", verify, (req, res) => TaskController.getTask(req, res));
+
 
 //debug
 taskRoutes.get("/", (req, res) => TaskController.getAllTasks(req, res));
@@ -21,5 +23,6 @@ taskRoutes.get("/subtask/:id", (req, res) => TaskController.getSubtask(req, res)
 taskRoutes.get("/project/:id", (req, res) => TaskController.getDirectTaskByProjectId(req, res));
 taskRoutes.get("/project/all/:id", (req, res) => TaskController.getAllTaskByProjectId(req, res));
 taskRoutes.put("/update", (req, res) => TaskController.updateTask(req, res));
+taskRoutes.get("/calculate/:id", (req, res) => TaskController.computeTaskProgress(req, res));
 taskRoutes.get("/:id", (req, res) => TaskController.getTask(req, res));
 module.exports = taskRoutes;

@@ -1,5 +1,7 @@
 class Node {
-  constructor(weight) {
+  constructor(weight, progress, name) {
+    this.progress = progress;
+    this.name = name;
     this.weight = weight;
     this.children = [];
   }
