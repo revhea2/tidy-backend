@@ -78,11 +78,12 @@ const ProjectController = {
     return newProject
       .save()
       .then((project) => {
-        const [isSuccesful, message] = await _getProject(project_.id);
+        const [isSuccesful, message] = await _getProject(project._id);
    
         return isSuccesful
           ? res.status(201).json(message)
           : res.status(400).json(message);
+
       })
       .catch((err) => res.status(400).json("Error" + err));
   },
