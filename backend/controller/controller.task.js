@@ -44,7 +44,7 @@ const TaskController = {
       .sort({ createdAt: -1 })
       .exec(function (err, results) {
         if (err) {
-          res.status(400).json({ error: "Error in getting all histories." });
+          res.status(400).json({ error: "Error in getting all tasks." });
         }
         res.status(200).json(results);
       });
@@ -143,11 +143,11 @@ const TaskController = {
         "emailAddress",
       ])
       .sort({ createdAt: -1 })
-      .exec(function (err, results) {
-        if (err) {
-          res.status(400).json({ error: "Error in getting specific task." });
-        }
+      .then((results) => {
         res.status(200).json(results);
+      })
+      .catch((err) => {
+        res.status(400).json({ error: err });
       });
   },
 
