@@ -6,7 +6,6 @@ const { _getProject, _updateProject } = require("./controller.project");
 const { _createHistory } = require("./controller.history");
 const Node = require("../utils/util.node");
 
-
 const TaskController = {
   /**
    * gets all tasks from the database
@@ -58,16 +57,15 @@ const TaskController = {
    */
 
   createTask: async (req, res) => {
-    
     const userID = decode(req.headers.authorization).id;
-    req.body["taskOwner"] = [userID, ...req.body["taskOwner"]]
-    
+    req.body["taskOwner"] = [userID, ...req.body["taskOwner"]];
+
     const [isSuccesful, message] = await _createTask(req.body);
-   
 
     if (!isSuccesful) {
       res.status(400).json(message);
     }
+
 
     // if it is a root task
     if (message.parentTaskID == null) {
@@ -79,6 +77,8 @@ const TaskController = {
       taskObj.task = taskObj.task.push(message._id);
       await _updateTask({ _id: taskObj._id, task: taskObj.task });
     }
+
+    await _updateProgress(message);
 
     return res.status(201).json(message);
   },
@@ -104,7 +104,7 @@ const TaskController = {
       : res.status(400).json(message);
   },
 
-  /** 
+  /**
    * gets all tasks that is managed by a user by ID
    *
    * @param {express.Request} req
@@ -144,7 +144,6 @@ const TaskController = {
         "emailAddress",
       ])
       .then((results) => {
-        console.log(results);
         res.status(200).json(results);
       })
       .catch((err) => {
@@ -213,8 +212,6 @@ const TaskController = {
       .catch((err) => res.status(400).json("Error" + err));
   },
 
-
-  
   /**
    * updates task
    *
@@ -222,13 +219,13 @@ const TaskController = {
    * @param {express.Response} res
    * @returns
    */
-   updateTask: async (req, res) => {
+  updateTask: async (req, res) => {
     // check if the incoming id is valid mongoose id
     if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json("Invalid route/mongoose ID!");
     }
 
-    req.body["_id"] =  req.params.id;
+    req.body["_id"] = req.params.id;
 
     const [isSuccesful, message] = await _updateTask(req.body);
     return isSuccesful
@@ -236,29 +233,88 @@ const TaskController = {
       : res.status(400).json(message);
   },
 
-    /**
+  /**
    * computes the current total progress of a task
    *
    * @param {express.Request} req
    * @param {express.Response} res
    * @returns total progress of task
    */
-     computeTaskProgress: async (req, res) => {
-      if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-        return res.status(400).json("Invalid route/mongoose ID!");
-      }
-  
-      const [isSuccesful, result] = await _getTask(req.params.id);
-  
-      if (isSuccesful) {
-        const tree = await _createTree(result);
-        // _bfs(tree);
-        console.log(_dfs(tree));
-      }
-      return res.status(200).json("No error!");
-    },
+  computeTaskProgress: async (req, res) => {
+    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json("Invalid route/mongoose ID!");
+    }
+
+    const [isSuccesful, result] = await _getTask(req.params.id);
+
+    if (isSuccesful) {
+      const tree = await _createTree(result);
+      // _bfs(tree);
+      console.log(_dfs(tree));
+    }
+    return res.status(200).json("No error!");
+  },
+
+  computeProgress: async (req, res) => {
+    await _updateTask(req.body);
+    const [isSuccessful, task] = await _getTask(req.body._id);
+    if (isSuccessful) {
+      await _updateProgress(task);
+    }
+
+    return res.status(200).json("No error!");
+  },
+};
 
 
+const _updateProgress = async (task) => {
+  var queue = [task];
+  
+
+  while (queue.length > 0) {
+    var currentTask = queue.shift();
+    console.log(currentTask)
+
+    if (currentTask.parentTaskID) {
+      const [b, parentTask] = await _getTask(currentTask.parentTaskID);
+      queue.push(parentTask);
+    }
+
+    if (currentTask.task.length > 0) {
+      let timeline = currentTask.timeline;
+      timeline["progress"] = 0;
+      let totalWeight = 0;
+      currentTask.task.forEach((subtask) => {
+        timeline["progress"] += subtask.weight * subtask.timeline.progress;
+      });
+      timeline["progress"] = timeline["progress"] / totalWeight;
+      const updateProgressTask = {
+        _id: currentTask._id,
+        timeline: timeline,
+      };
+      await _updateTask(updateProgressTask);
+    }
+  }
+
+
+
+  let [sucessful, project] = await _getProject(currentTask.project);
+  if (sucessful) {
+    let timeline = project.timeline;
+    let totalWeight = 0;
+    timeline["progress"] = 0;
+    project.task.forEach((subtask) => {
+      timeline["progress"] += subtask.weight * subtask.timeline.progress;
+      totalWeight += subtask.weight;
+    });
+
+    timeline["progress"] = timeline["progress"] / totalWeight;
+    const updateProgressProject = {
+      _id: project._id,
+      timeline: timeline,
+    };
+    await _updateProject(updateProgressProject);
+  }
 };
 
 const _dfs = (node) => {
@@ -314,7 +370,6 @@ const _dfsInsert = async (node, task) => {
   }
 };
 
-
 /**
  * gets a single task from db by ID
  *
@@ -343,14 +398,14 @@ const _getTask = (id) => {
     .populate({
       path: "task",
       populate: {
-        path: "timeline"
-      }
+        path: "timeline",
+      },
     })
     .populate({
       path: "task",
       populate: {
-        path: "taskOwner"
-      }
+        path: "taskOwner",
+      },
     })
     .populate("taskOwner", [
       "badgeID",
@@ -367,7 +422,6 @@ const _getTask = (id) => {
       return [false, { error: err }];
     });
 };
-
 
 const _updateTask = async (task) => {
   const [successful, oldTask] = await _getTask(task._id);
@@ -405,9 +459,7 @@ const _updateTask = async (task) => {
   const [isSuccesful, newHistory] = await _createHistory(history);
 
   if (isSuccesful) {
-    tempTask["taskHistory"] = oldTask.taskHistory.concat(
-      newHistory._id
-    );
+    tempTask["taskHistory"] = oldTask.taskHistory.concat(newHistory._id);
   } else {
     tempTask["taskHistory"] = oldTask.taskHistory;
   }
@@ -417,7 +469,11 @@ const _updateTask = async (task) => {
   };
 
   return Task.findByIdAndUpdate(task._id, tempTask, options)
-    .then((task) => {
+    .then( async (_task) => {
+      
+      if(task.timeline.progress != oldTask.timeline.progress){ 
+        await _updateProgress(_task);
+      }
       return [true, task];
     })
     .catch((err) => {
@@ -433,14 +489,13 @@ const _updateTask = async (task) => {
  */
 
 const _createTask = async (task) => {
-
   const parentTaskID = task.parentTaskID;
   const project = task.project;
   const taskName = task.taskName;
   const _task = task.task;
   const taskDetails = task.taskDetails;
   const taskHistory = task.taskHistory;
-  const taskOwner =  task.taskOwner;
+  const taskOwner = task.taskOwner;
   const weight = task.weight;
   const [isSuccessful, timeline] = await _createTimeline(task.timeline);
 
@@ -459,14 +514,11 @@ const _createTask = async (task) => {
   return newTask
     .save()
     .then((task) => {
-      task.populate("timeline").execPopulate()
-      return  [true, task];
+      task.populate("timeline").execPopulate();
+      return [true, task];
     })
     .catch((err) => [false, { error: err }]);
 };
-
-
-
 
 
 module.exports = TaskController;

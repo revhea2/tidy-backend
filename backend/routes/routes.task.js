@@ -23,6 +23,8 @@ taskRoutes.get("/subtask/:id", (req, res) => TaskController.getSubtask(req, res)
 taskRoutes.get("/project/:id", (req, res) => TaskController.getDirectTaskByProjectId(req, res));
 taskRoutes.get("/project/all/:id", (req, res) => TaskController.getAllTaskByProjectId(req, res));
 taskRoutes.put("/update/:id", (req, res) => TaskController.updateTask(req, res));
+taskRoutes.put("/computeProgress/", (req, res) => TaskController.computeProgress(req, res));
 taskRoutes.get("/calculate/:id", (req, res) => TaskController.computeTaskProgress(req, res));
 taskRoutes.get("/:id", (req, res) => TaskController.getTask(req, res));
+
 module.exports = taskRoutes;
