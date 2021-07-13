@@ -119,6 +119,7 @@ const TaskController = {
     const userID = decode(req.headers.authorization).id;
 
     return Task.find({ taskOwner: userID })
+      .sort({ createdAt: -1 })
       .populate("timeline")
       .populate("taskHistory")
       .populate({
@@ -142,8 +143,8 @@ const TaskController = {
         "additionalInfo",
         "emailAddress",
       ])
-      .sort({ createdAt: -1 })
       .then((results) => {
+        console.log(results);
         res.status(200).json(results);
       })
       .catch((err) => {
@@ -341,6 +342,12 @@ const _getTask = (id) => {
       path: "task",
       populate: {
         path: "timeline"
+      }
+    })
+    .populate({
+      path: "task",
+      populate: {
+        path: "taskOwner"
       }
     })
     .populate("taskOwner", [

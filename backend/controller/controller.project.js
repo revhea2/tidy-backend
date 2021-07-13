@@ -361,6 +361,12 @@ const _getProject = (id) => {
         path: "timeline"
       }
     })
+    .populate({
+      path: "task",
+      populate: {
+        path: "taskOwner"
+      }
+    })
     .then((results) => {
       return [true, results];
     })
