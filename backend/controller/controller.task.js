@@ -228,6 +228,8 @@ const TaskController = {
       return res.status(400).json("Invalid route/mongoose ID!");
     }
 
+    req.body["_id"] =  req.params.id;
+
     const [isSuccesful, message] = await _updateTask(req.body);
     return isSuccesful
       ? res.status(201).json(message)
