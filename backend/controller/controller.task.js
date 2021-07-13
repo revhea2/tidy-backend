@@ -142,6 +142,7 @@ const TaskController = {
         "additionalInfo",
         "emailAddress",
       ])
+      .sort({ createdAt: -1 })
       .exec(function (err, results) {
         if (err) {
           res.status(400).json({ error: "Error in getting specific task." });
