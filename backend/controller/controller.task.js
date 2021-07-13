@@ -271,7 +271,7 @@ const _updateTaskProgress = async (task) => {
 
   const [isSuccessful, newTimeline] = await _createTimeline(task.timeline);
 
-  return Task.findByIdAndUpdate(task._id,  {timeline: newTimeline._id}, {new:true})
+  return Task.findOneAndUpdate({"_id": task._id},  { $set: {'timeline': newTimeline._id } }, { upsert: true, new: true })
       .then((results) => {
         console.log(newTimeline.progress)
           return [true, results];
@@ -291,7 +291,6 @@ const _updateProgress = async (task) => {
     currentTask = queue.shift();
 
 
-   console.log("HERE?")
     if (currentTask.task.length > 0) {
       let timeline = currentTask.timeline;
       let totalWeight = 0;
