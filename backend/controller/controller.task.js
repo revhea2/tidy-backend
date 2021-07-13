@@ -443,7 +443,7 @@ const _createTask = async (task) => {
   return newTask
     .save()
     .then((task) => {
-      task["timeline"] = timeline;
+      task.populate("timeline").execPopulate()
       return  [true, task];
     })
     .catch((err) => [false, { error: err }]);
