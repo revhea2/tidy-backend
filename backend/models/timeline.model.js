@@ -15,7 +15,7 @@ const timelimeSchema = new Schema(
     type: Number
    },
 },
-  { timestaps: true }
+{ timestamps: true }
 );
 
 const Timeline = mongoose.model("Timeline", timelimeSchema);

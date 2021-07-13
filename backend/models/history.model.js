@@ -21,7 +21,7 @@ const historySchema = new Schema(
       ref: "Timeline"
     },
   },
-  { timestaps: true }
+  { timestamps: true }
 );
 
 const History = mongoose.model("History", historySchema);
