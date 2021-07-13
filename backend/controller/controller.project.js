@@ -355,6 +355,12 @@ const _getProject = (id) => {
       "emailAddress",
     ])
     .populate("task")
+    .populate({
+      path: "task",
+      populate: {
+        path: "timeline"
+      }
+    })
     .then((results) => {
       return [true, results];
     })

@@ -337,6 +337,12 @@ const _getTask = (id) => {
       },
     })
     .populate("task")
+    .populate({
+      path: "task",
+      populate: {
+        path: "timeline"
+      }
+    })
     .populate("taskOwner", [
       "badgeID",
       "firstName",
