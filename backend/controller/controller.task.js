@@ -267,33 +267,53 @@ const TaskController = {
 };
 
 
+const _updateTaskProgress = async (task) => {
+
+  const [isSuccessful, newTimeline] = await _createTimeline(task.timeline);
+
+  return Task.findByIdAndUpdate(task._id,  {timeline: newTimeline._id}, {new:true})
+      .then((results) => {
+        console.log(newTimeline.progress)
+          return [true, results];
+        })
+      .catch((err) => {
+        return [false, { error: err }];
+      });
+};
+
+
+
 const _updateProgress = async (task) => {
   var queue = [task];
-  
+  var currentTask = task;
 
   while (queue.length > 0) {
-    var currentTask = queue.shift();
-    console.log(currentTask)
+    currentTask = queue.shift();
 
-    if (currentTask.parentTaskID) {
-      const [b, parentTask] = await _getTask(currentTask.parentTaskID);
-      queue.push(parentTask);
-    }
 
+   console.log("HERE?")
     if (currentTask.task.length > 0) {
       let timeline = currentTask.timeline;
-      timeline["progress"] = 0;
       let totalWeight = 0;
+      let totalProgress = 0
       currentTask.task.forEach((subtask) => {
-        timeline["progress"] += subtask.weight * subtask.timeline.progress;
+        totalProgress += subtask.weight * subtask.timeline.progress;
+        totalWeight += subtask.weight;
       });
-      timeline["progress"] = timeline["progress"] / totalWeight;
+      
+      timeline["progress"] = totalProgress/totalWeight;
       const updateProgressTask = {
         _id: currentTask._id,
         timeline: timeline,
       };
-      await _updateTask(updateProgressTask);
+      await _updateTaskProgress(updateProgressTask);
     }
+
+    if (currentTask.parentTaskID) {
+      const [b, parentTask] = await _getTask(currentTask.parentTaskID);
+      queue.push(parentTask)
+    }
+
   }
 
 
@@ -302,13 +322,14 @@ const _updateProgress = async (task) => {
   if (sucessful) {
     let timeline = project.timeline;
     let totalWeight = 0;
+    let totalProgress = 0;
     timeline["progress"] = 0;
     project.task.forEach((subtask) => {
-      timeline["progress"] += subtask.weight * subtask.timeline.progress;
+      totalProgress += subtask.weight * subtask.timeline.progress;
       totalWeight += subtask.weight;
     });
 
-    timeline["progress"] = timeline["progress"] / totalWeight;
+    timeline["progress"] = totalProgress / totalWeight;
     const updateProgressProject = {
       _id: project._id,
       timeline: timeline,
@@ -423,6 +444,9 @@ const _getTask = (id) => {
     });
 };
 
+
+
+
 const _updateTask = async (task) => {
   const [successful, oldTask] = await _getTask(task._id);
   let remarks = "";
@@ -480,6 +504,7 @@ const _updateTask = async (task) => {
       return [false, { err: err }];
     });
 };
+
 
 /**
  * saves a task in database

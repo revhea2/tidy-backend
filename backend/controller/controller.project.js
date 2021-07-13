@@ -192,9 +192,6 @@ const _bfs = (tree) => {
     var n = queue.length;
     while (n > 0) {
       const currentNode = queue.shift();
-      console.log(currentNode.name);
-      console.log(currentNode.children);
-      console.log("");
       queue = queue.concat(currentNode.children);
       n--;
     }
