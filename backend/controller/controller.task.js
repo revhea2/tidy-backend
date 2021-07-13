@@ -258,7 +258,6 @@ const TaskController = {
 };
 
 const _dfs = (node) => {
-  console.log(node)
   var total_progress = 0;
   var total_weight = 0;
 
@@ -443,7 +442,10 @@ const _createTask = async (task) => {
 
   return newTask
     .save()
-    .then((task) => [true, task])
+    .then((task) => {
+      task["timeline"] = timeline;
+      return  [true, task];
+    })
     .catch((err) => [false, { error: err }]);
 };
 
