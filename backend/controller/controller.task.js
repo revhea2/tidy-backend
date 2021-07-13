@@ -276,10 +276,9 @@ const _dfs = (node) => {
 const _createTree = async (root) => {
   var parentNode = new Node(root.weight, root.timeline.progress, root.taskName);
 
-  var stack = [parentNode];
+  var stack = root.task;
   while (stack.length > 0) {
     const task = stack.pop();
-    console.log(task)
     const [isOkay, taskObj] = await _getTask(task._id);
     if (isOkay && taskObj) {
       var node = new Node(
