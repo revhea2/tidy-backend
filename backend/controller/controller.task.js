@@ -389,6 +389,8 @@ const _getTask = (id) => {
 };
 
 
+
+
 /**
  * this method updates and return the task that has been updated
  * 
@@ -444,15 +446,24 @@ const _updateTask = async (task) => {
   return Task.findByIdAndUpdate(task._id, tempTask, options)
     .then( async (_task) => {
       
-      if(task.timeline.progress != oldTask.timeline.progress){ 
+      if(task.timeline !== null && task.timeline.progress != oldTask.timeline.progress){ 
         await _updateProgress(_task);
       }
+
       return [true, task];
     })
     .catch((err) => {
       return [false, { err: err }];
     });
 };
+
+function resolve() {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve('resolved');
+    }, 2000);
+  })
+}
 
 
 /**
