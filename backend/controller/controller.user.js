@@ -45,7 +45,7 @@ const UserController = {
     }
 
     if (userFieldsError) {
-      return res.status(400).json(userFieldsError);
+      return res.status(409).json(userFieldsError);
     }
 
     let user;
@@ -54,7 +54,7 @@ const UserController = {
     try {
       user = await User.findOne({ username: newUserData.username });
       if (user) {
-        return res.status(400).json({
+        return res.status(409).json({
           error: "User with username already exists.",
         });
       }
@@ -66,7 +66,7 @@ const UserController = {
     try {
       user = await User.findOne({ badgeID: newUserData.badgeID });
       if (user) {
-        return res.status(400).json({
+        return res.status(409).json({
           error: "User with badgeID already exists.",
         });
       }
@@ -78,7 +78,7 @@ const UserController = {
     try {
       user = await User.findOne({ emailAddress: newUserData.emailAddress });
       if (user) {
-        return res.status(400).json({
+        return res.status(409).json({
           error: "User with email already exists.",
         });
       }

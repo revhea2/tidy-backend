@@ -4,7 +4,6 @@ const Task = require("../models/task.model");
 const { decode } = require("../auth/auth.js");
 const { _createTimeline } = require("./controller.timeline");
 const { _createHistory } = require("./controller.history");
-const Node = require("../utils/util.node");
 
 const ProjectController = {
   /**
@@ -166,89 +165,12 @@ const ProjectController = {
    * @param {express.Response} res
    * @returns total progress of project
    */
-  computeProjectProgress: async (req, res) => {
-    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json("Invalid route/mongoose ID!");
-    }
 
-    const [isSuccesful, result] = await _getProject(req.params.id);
-
-    if (isSuccesful) {
-      const directTasks = result.task;
-      const tree = await _createTree(directTasks);
-
-      // _bfs(tree);
-      console.log(_dfs(tree));
-    }
-    return res.status(200).json("No error!");
-  },
 };
 
 
-const _bfs = (tree) => {
-  var queue = [tree];
 
-  while (queue.length > 0) {
-    var n = queue.length;
-    while (n > 0) {
-      const currentNode = queue.shift();
-      queue = queue.concat(currentNode.children);
-      n--;
-    }
-  }
-};
-
-const _dfs = (node) => {
-  var total_progress = 0;
-  var total_weight = 0;
-
-  if (node.children.length == 0) {
-    return node.progress;
-  } else {
-    node.children.forEach((child) => {
-      total_progress += child.weight * _dfs(child);
-      total_weight += child.weight;
-    });
-  }
-  return total_progress / total_weight;
-};
-
-const _createTree = async (directTasks) => {
-  var parentNode = new Node(0, 0, "root");
-  var stack = directTasks;
-  while (stack.length > 0) {
-    const task = stack.pop();
-    const [isOkay, taskObj] = await _getTask(task._id);
-    if (isOkay && taskObj) {
-      var node = new Node(
-        task.weight,
-        taskObj.timeline.progress,
-        taskObj.taskName
-      );
-      await _dfsInsert(node, taskObj);
-      parentNode.addChild(node);
-    }
-  }
-
-  return parentNode;
-};
-
-const _dfsInsert = async (node, task) => {
-  var stack = task.task;
-  while (stack.length > 0) {
-    const subtask = stack.pop();
-    const [isOkay, taskObj] = await _getTask(subtask._id);
-    if (isOkay && taskObj) {
-      var childNode = new Node(
-        taskObj.weight,
-        taskObj.timeline.progress,
-        taskObj.taskName
-      );
-      await _dfsInsert(childNode, taskObj);
-      node.addChild(childNode);
-    }
-  }
-};
+// all utility methods starts here
 
 /**
  * gets a single task from db by ID
@@ -269,6 +191,14 @@ const _getTask = (id) => {
       return [false, { error: err }];
     });
 };
+
+
+/**
+ * this is a helper method called when a project is updated
+ * 
+ * @param {Object} project 
+ * @returns [boolean, Object]
+ */
 
 const _updateProject = async (project) => {
   const [successful, oldProject] = await _getProject(project._id);
@@ -317,7 +247,7 @@ const _updateProject = async (project) => {
     new: true,
   };
 
-  return Project.findByIdAndUpdate(project._id, tempProject, options)
+  return Project.findByIdAndUpdate(project._id, tempProject, options, )
     .then((project) => {
       return [true, project];
     })
@@ -326,8 +256,13 @@ const _updateProject = async (project) => {
     });
 };
 
-// all utility methods starts here
 
+/**
+ * gets a single project by ID in database
+ * 
+ * @param {String} id 
+ * @returns [boolean, Object]
+ */
 const _getProject = (id) => {
   return Project.findById(id)
     .populate("timeline")

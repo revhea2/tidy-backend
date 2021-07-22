@@ -31,7 +31,7 @@ const registerValidation = (data) => {
     firstName: Joi.string().min(1).required(),
     lastName: Joi.string().min(1).required(),
     jobTitle: Joi.string().min(1).required(),
-    emailAddress: Joi.string().min(6).email(),
+    emailAddress: Joi.string().email(),
     additionalInfo: Joi.string().allow(null, '')
   });
 

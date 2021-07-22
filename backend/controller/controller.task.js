@@ -4,8 +4,6 @@ const { decode } = require("../auth/auth.js");
 const { _createTimeline } = require("./controller.timeline");
 const { _getProject, _updateProject } = require("./controller.project");
 const { _createHistory } = require("./controller.history");
-const Node = require("../utils/util.node");
-
 const TaskController = {
   /**
    * gets all tasks from the database
@@ -271,7 +269,7 @@ const _updateTaskProgress = async (task) => {
 
   const [isSuccessful, newTimeline] = await _createTimeline(task.timeline);
 
-  return Task.findOneAndUpdate({"_id": task._id},  { $set: {'timeline': newTimeline._id } }, { upsert: true, new: true })
+  return Task.findOneAndUpdate({"_id": task._id},  { $set: {'timeline': newTimeline._id } }, { upsert: true, new: true }, )
       .then((results) => {
         console.log(newTimeline.progress)
           return [true, results];
@@ -283,13 +281,21 @@ const _updateTaskProgress = async (task) => {
 
 
 
+// <--------- all utility methods starts here ------------------------------------------------------------------------------------------------------>
+
+/**
+ * this a helper method that updates the progress of a task
+ * the algorithm that is used here is an inversed-limited dfs
+ * 
+ * @param {Object} task 
+ */
+
 const _updateProgress = async (task) => {
   var queue = [task];
   var currentTask = task;
 
   while (queue.length > 0) {
     currentTask = queue.shift();
-
 
     if (currentTask.task.length > 0) {
       let timeline = currentTask.timeline;
@@ -315,8 +321,6 @@ const _updateProgress = async (task) => {
 
   }
 
-
-
   let [sucessful, project] = await _getProject(currentTask.project);
   if (sucessful) {
     let timeline = project.timeline;
@@ -337,58 +341,8 @@ const _updateProgress = async (task) => {
   }
 };
 
-const _dfs = (node) => {
-  var total_progress = 0;
-  var total_weight = 0;
 
-  if (node.children.length == 0) {
-    return node.progress;
-  } else {
-    node.children.forEach((child) => {
-      total_progress += child.weight * _dfs(child);
-      total_weight += child.weight;
-    });
-  }
-  return total_progress / total_weight;
-};
 
-const _createTree = async (root) => {
-  var parentNode = new Node(root.weight, root.timeline.progress, root.taskName);
-
-  var stack = root.task;
-  while (stack.length > 0) {
-    const task = stack.pop();
-    const [isOkay, taskObj] = await _getTask(task._id);
-    if (isOkay && taskObj) {
-      var node = new Node(
-        task.weight,
-        taskObj.timeline.progress,
-        taskObj.taskName
-      );
-      await _dfsInsert(node, taskObj);
-      parentNode.addChild(node);
-    }
-  }
-
-  return parentNode;
-};
-
-const _dfsInsert = async (node, task) => {
-  var stack = task.task;
-  while (stack.length > 0) {
-    const subtask = stack.pop();
-    const [isOkay, taskObj] = await _getTask(subtask._id);
-    if (isOkay && taskObj) {
-      var childNode = new Node(
-        taskObj.weight,
-        taskObj.timeline.progress,
-        taskObj.taskName
-      );
-      await _dfsInsert(childNode, taskObj);
-      node.addChild(childNode);
-    }
-  }
-};
 
 /**
  * gets a single task from db by ID
@@ -444,7 +398,12 @@ const _getTask = (id) => {
 };
 
 
-
+/**
+ * this method updates and return the task that has been updated
+ * 
+ * @param {Object} task 
+ * @returns Object
+ */
 
 const _updateTask = async (task) => {
   const [successful, oldTask] = await _getTask(task._id);
@@ -543,6 +502,7 @@ const _createTask = async (task) => {
     })
     .catch((err) => [false, { error: err }]);
 };
+
 
 
 module.exports = TaskController;
