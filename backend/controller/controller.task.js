@@ -231,27 +231,13 @@ const TaskController = {
       : res.status(400).json(message);
   },
 
+
   /**
-   * computes the current total progress of a task
-   *
-   * @param {express.Request} req
-   * @param {express.Response} res
-   * @returns total progress of task
+   * 
+   * @param {Express.Request} req 
+   * @param {Express.Response} res 
+   * @returns 
    */
-  computeTaskProgress: async (req, res) => {
-    if (!req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json("Invalid route/mongoose ID!");
-    }
-
-    const [isSuccesful, result] = await _getTask(req.params.id);
-
-    if (isSuccesful) {
-      const tree = await _createTree(result);
-      // _bfs(tree);
-      console.log(_dfs(tree));
-    }
-    return res.status(200).json("No error!");
-  },
 
   computeProgress: async (req, res) => {
     await _updateTask(req.body);
@@ -264,7 +250,15 @@ const TaskController = {
   },
 };
 
+// <--------- all utility methods starts here ------------------------------------------------------------------------------------------------------>
 
+
+/**
+ * helper method that updates progress of a single task 
+ * 
+ * @param {Object} task 
+ * @returns [boolean, Object]
+ */
 const _updateTaskProgress = async (task) => {
 
   const [isSuccessful, newTimeline] = await _createTimeline(task.timeline);
@@ -279,9 +273,6 @@ const _updateTaskProgress = async (task) => {
       });
 };
 
-
-
-// <--------- all utility methods starts here ------------------------------------------------------------------------------------------------------>
 
 /**
  * this a helper method that updates the progress of a task
