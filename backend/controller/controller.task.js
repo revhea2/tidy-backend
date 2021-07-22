@@ -457,13 +457,7 @@ const _updateTask = async (task) => {
     });
 };
 
-function resolve() {
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve('resolved');
-    }, 2000);
-  })
-}
+
 
 
 /**
