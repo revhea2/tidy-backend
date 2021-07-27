@@ -133,7 +133,9 @@ const UserController = {
       return res.status(400).json(err);
     }
 
+    console.log("1")
     if (user == null) {
+      console.log("2")
       return res.status(400).json("No user exists with the given credentials!");
     }
 
@@ -143,6 +145,7 @@ const UserController = {
         user.password
       );
       if (!isPasswordMatched) {
+        console.log("3")
         return res.status(400).json("Password did not match!");
       }
 
