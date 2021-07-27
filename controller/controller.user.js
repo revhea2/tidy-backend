@@ -129,10 +129,12 @@ const UserController = {
         badgeID: req.body.badgeID,
         username: req.body.username,
       });
+      console.log(user)
     } catch (err) {
       return res.status(400).json(err);
     }
 
+    console.log("???", user)
     console.log("1")
     if (user == null) {
       console.log("2")
