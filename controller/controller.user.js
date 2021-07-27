@@ -121,6 +121,8 @@ const UserController = {
    */
 
   loginUser: async (req, res) => {
+    console.log('!!!!!!!')
+    console.log(req.body)
     let user;
     try {
       user = await User.findOne({
