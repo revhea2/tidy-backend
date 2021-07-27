@@ -154,22 +154,27 @@ const UserController = {
     //
   },
 
+
   /**
    * updates user in the database
    *
    * @param {express.Request} req
    * @param {express.Response} res
    */
-  userUpdate: (req, res) => {
+  userUpdate: async (req, res) => {
 
     let userID = decode(req.headers.authorization).id
-
     let userUpdate = {
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       jobTitle: req.body.jobTitle,
       additionalInfo: req.body.additionalInfo,
     };
+
+
+    if(req.body.password){
+      userUpdate['password'] = await bcrypt.hash(newUserData.password, 10);
+    }
 
     const options = {
       new: true,
