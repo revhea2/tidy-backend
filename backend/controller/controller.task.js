@@ -404,10 +404,15 @@ const _updateTask = async (task) => {
   let tempTask = {};
   let history = {};
 
+  if(task.weight){
+    remarks += "Weight is updated. \n";
+    tempTask["weight"] = task.taskOwner;
+  }
+
   if (task.taskOwner) {
     history["userList"] = oldTask.taskOwner;
     tempTask["taskOwner"] = task.taskOwner;
-    remarks += "Task owner was altered. \n";
+    remarks += "Task owner was updated. \n";
   }
   if (task.taskName) {
     tempTask["taskName"] = task.taskName;

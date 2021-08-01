@@ -209,7 +209,7 @@ const _updateProject = async (project) => {
   if (project.projectOwner) {
     history["userList"] = oldProject.projectOwner;
     tempProject["projectOwner"] = project.projectOwner;
-    remarks += "Project owner was altered. \n";
+    remarks += "Project owner was updated. \n";
   }
   if (project.projectName) {
     tempProject["projectName"] = project.projectName;
