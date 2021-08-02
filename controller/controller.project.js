@@ -266,18 +266,12 @@ const _updateProject = async (project) => {
 const _getProject = (id) => {
   return Project.findById(id)
     .populate("timeline")
-    .populate("projectHistory")
-    .populate({
-      path: "projectHistory",
+    .populate({ 
+      path: "projectHistory", 
+      options: {sort: { "createdAt": -1 }},
       populate: {
-        path: "userList",
-      },
-    })
-    .populate({
-      path: "projectHistory",
-      populate: {
-        path: "timeline",
-      },
+        path: "userList timeline",
+      } 
     })
     .populate("projectOwner", [
       "badgeID",
@@ -287,18 +281,12 @@ const _getProject = (id) => {
       "additionalInfo",
       "emailAddress",
     ])
-    .populate("task")
-    .populate({
-      path: "task",
+    .populate({ 
+      path: "task", 
+      options: {sort: { "createdAt": -1 }},
       populate: {
-        path: "timeline"
-      }
-    })
-    .populate({
-      path: "task",
-      populate: {
-        path: "taskOwner"
-      }
+        path: "taskOwner timeline",
+      } 
     })
     .then((results) => {
       return [true, results];

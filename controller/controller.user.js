@@ -129,15 +129,11 @@ const UserController = {
         badgeID: req.body.badgeID,
         username: req.body.username,
       });
-      console.log(user)
     } catch (err) {
       return res.status(400).json(err);
     }
 
-    console.log("???", user)
-    console.log("1")
     if (user == null) {
-      console.log("2")
       return res.status(400).json("No user exists with the given credentials!");
     }
 
@@ -147,7 +143,6 @@ const UserController = {
         user.password
       );
       if (!isPasswordMatched) {
-        console.log("3")
         return res.status(400).json("Password did not match!");
       }
 
@@ -171,16 +166,27 @@ const UserController = {
   userUpdate: async (req, res) => {
 
     let userID = decode(req.headers.authorization).id
-    let userUpdate = {
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      jobTitle: req.body.jobTitle,
-      additionalInfo: req.body.additionalInfo,
-    };
 
+    let userUpdate = {};
+
+    console.log(req.body)
+
+    if(req.body.firstName){
+      userUpdate['firstName'] = req.body.firstName;
+    }
+
+    if(req.body.lastName){
+      userUpdate['lastName'] = req.body.lastName;
+    }
+    if(req.body.jobTitle){
+      userUpdate['jobTitle'] = req.body.jobTitle;
+    }
+    if(req.body.additionalInfo){
+      userUpdate['additionalInfo'] = req.body.additionalInfo;
+    }
 
     if(req.body.password){
-      userUpdate['password'] = await bcrypt.hash(newUserData.password, 10);
+      userUpdate['password'] = await bcrypt.hash(req.body.password, 10);
     }
 
     const options = {
@@ -234,5 +240,45 @@ const UserController = {
     .catch((err) => res.status(400).json("Error" + err));
   },
 };
+
+ /**
+   * This method is for admin to update user password
+   * 
+   * @param {Express.Request} req 
+   * @param {Express.Response} res 
+   */
+  adminUserUpdate: async (req, res) => {
+
+    const badgeID = req.body.badgeID;
+
+    const RESETPASSWORD = "Microchip12"
+
+    const userUpdate = {
+      password: await bcrypt.hash(RESETPASSWORD, 10),
+    };
+
+    const options = {
+      new: true,
+    };
+
+    User.findOneAndUpdate(
+      { badgeID: badgeID},
+      userUpdate,
+      options,
+      (error, updatedUser) => {
+        if (error) {
+          return res.status(500).json({
+            error: "Problem updating user. Please try again.",
+          });
+        }
+
+        return res.status(201).json({
+          message: "Password updated successfully!",
+          user: updatedUser,
+        });
+      }
+    ).catch((err) => res.status(400).json("Error" + err));
+
+  }
 
 module.exports = UserController;

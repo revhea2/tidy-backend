@@ -346,31 +346,19 @@ const _getTask = (id) => {
   return Task.findById(id)
     .populate("timeline")
     .populate("project", "projectName")
-    .populate("taskHistory")
-    .populate({
-      path: "taskHistory",
+    .populate({ 
+      path: "taskHistory", 
+      options: {sort: { "createdAt": -1 }},
       populate: {
-        path: "userList",
-      },
+        path: "userList timeline",
+      } 
     })
-    .populate({
-      path: "taskHistory",
+    .populate({ 
+      path: "task", 
+      options: {sort: { "createdAt": -1 }},
       populate: {
-        path: "timeline",
-      },
-    })
-    .populate("task")
-    .populate({
-      path: "task",
-      populate: {
-        path: "timeline",
-      },
-    })
-    .populate({
-      path: "task",
-      populate: {
-        path: "taskOwner",
-      },
+        path: "taskOwner timeline",
+      } 
     })
     .populate("taskOwner", [
       "badgeID",
@@ -427,6 +415,10 @@ const _updateTask = async (task) => {
   if (task.taskDetails) {
     tempTask["taskDetails"] = task.taskDetails;
     remarks += "Task details was changed. \n";
+  }
+  if(task.weight){
+    remarks += "Weight is updated. \n";
+    tempTask["weight"] = task.weight;
   }
 
   history["remarks"] = remarks;
